@@ -8,11 +8,13 @@ export interface ConfidenceResult {
 }
 
 export function calculateConfidence(message: EmailMessage): ConfidenceResult {
-  let score = 100;
-  const limitations: string[] = [];
+  let score = 75;
+  const limitations: string[] = [
+    "The analysis uses visible Gmail content only; it does not verify full email headers, sender authentication, URL reputation, or attachment contents.",
+  ];
 
   if (!message.sender?.address) {
-    score -= 20;
+    score -= 15;
     limitations.push("The sender address was unavailable or could not be verified from the visible Gmail UI.");
   }
   if (!message.subject) {
@@ -20,7 +22,7 @@ export function calculateConfidence(message: EmailMessage): ConfidenceResult {
     limitations.push("The subject was unavailable.");
   }
   if (!message.bodyText.trim()) {
-    score -= 25;
+    score -= 20;
     limitations.push("The visible message body was empty or unavailable.");
   }
   if (!message.bodyHtml) {
@@ -39,3 +41,4 @@ export function calculateConfidence(message: EmailMessage): ConfidenceResult {
     limitations: [...new Set(limitations)],
   };
 }
+
