@@ -54,7 +54,8 @@ async function analyzeCurrentEmail(button: HTMLButtonElement): Promise<void> {
 
 function toUserFacingError(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
-  if (message.includes("No open Gmail message") || message.includes("Receiving end does not exist")) return "Open an email in Gmail, then run the analysis again.";
+  if (message.includes("No open Gmail message")) return "Open an email in Gmail, then run the analysis again.";
+  if (message.includes("Receiving end does not exist") || message.includes("Could not establish connection")) return "PhishCheck could not connect to this Gmail tab. Reload the extension and the Gmail page, then try again.";
   if (message.includes("Gmail is not the current page")) return "Open Gmail and an email message before starting the analysis.";
   if (message) return `PhishCheck could not reliably extract this email: ${message}`;
   return "PhishCheck could not analyze this page.";
