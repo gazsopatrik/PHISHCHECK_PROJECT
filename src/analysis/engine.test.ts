@@ -20,11 +20,11 @@ const message: EmailMessage = {
 describe("analysis engine", () => {
   it("returns explainable score, risk, confidence, and correlation findings", () => {
     const result = analyzeMessage(message, { brands: commonBrands });
-    expect(result.riskScore).toBe(59);
+    expect(result.riskScore).toBe(44);
     expect(result.riskLevel).toBe("suspicious");
     expect(result.confidenceLevel).toBe("high");
     expect(result.findings.map((finding) => finding.ruleId)).toContain("CORRELATION_BRAND_SENDER_LINK");
-    expect(result.summary).toContain("59/100");
+    expect(result.summary).toContain("44/100");
   });
 
   it("lowers confidence when extraction metadata is missing", () => {
@@ -49,4 +49,18 @@ describe("analysis engine", () => {
     ]));
     expect(result.riskScore).toBeGreaterThan(60);
   });
+
+  it("does not score missing extraction metadata as phishing evidence", () => {
+    const result = analyzeMessage({
+      ...message,
+      sender: null,
+      bodyText: "Your account statement is ready to review.",
+      links: [],
+      extractionWarnings: ["Sender metadata was unavailable."],
+    }, { brands: commonBrands });
+
+    expect(result.riskScore).toBe(0);
+    expect(result.findings.some((finding) => finding.category === "missing-information")).toBe(true);
+  });
 });
+
