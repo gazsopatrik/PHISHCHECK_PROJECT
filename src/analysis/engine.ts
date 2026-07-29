@@ -2,8 +2,10 @@ import type { AnalysisContext, AnalysisResult, ConfidenceLevel, RiskLevel, Secur
 import type { EmailMessage } from "../models/email";
 import { applyCorrelationRules } from "./correlation";
 import { runAttachmentRules } from "./rules/attachment-rules";
+import { runConsistencyRules } from "./rules/consistency-rules";
 import { runContentRules } from "./rules/content-rules";
 import { runLinkRules } from "./rules/link-rules";
+import { runMissingInformationRules } from "./rules/missing-information-rules";
 import { runSenderRules } from "./rules/sender-rules";
 import { calculateConfidence } from "./scoring/confidence";
 import { normalizeRiskScore } from "./scoring/score";
@@ -38,6 +40,8 @@ export function analyzeMessage(message: EmailMessage, context: AnalysisContext):
     ...runLinkRules(message, context),
     ...runContentRules(message, context),
     ...runAttachmentRules(message, context),
+    ...runConsistencyRules(message, context),
+    ...runMissingInformationRules(message, context),
   ];
   const findings: SecurityFinding[] = [...baseFindings, ...applyCorrelationRules(message, baseFindings)];
   const riskScore = normalizeRiskScore(findings);
