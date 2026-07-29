@@ -42,6 +42,29 @@ This file records the implementation work for PhishCheck. Entries are written in
 - `pnpm test` — passed: 1 test file, 1 test.
 - Opera GX manual installation test — pending until the unpacked build is loaded in the browser.
 
+## Phase 2 — Gmail extraction foundation
+
+### Completed
+
+- Added shared `EmailMessage`, `EmailAddress`, `ExtractedLink`, and `EmailAttachment` models.
+- Added the provider adapter contract.
+- Added `GmailProviderAdapter` with isolated selector definitions.
+- Added supported-page and open-message detection.
+- Added extraction for visible sender, recipients, subject, body text/HTML, links, attachments, and Gmail warnings.
+- Added explicit extraction warnings and explicit failure when no reliable message body is found.
+- Added stable PhishCheck IDs to extracted links for future highlighting.
+- Added removable highlight support behind the provider adapter boundary.
+- Added a Gmail credential-phishing HTML fixture.
+- Added fixture-based tests for successful extraction, missing message content, and unsupported pages.
+- Added `happy-dom` only for DOM fixture testing.
+
+### Validation
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 2 test files, 4 tests.
+- Opera GX manual installation and live Gmail DOM validation — pending.
+
 ### Next step
 
-Begin Phase 2: implement the Gmail provider adapter, current-message detection, normalized email models, extraction warnings, and Gmail fixture tests.
+Begin Phase 3: add the analysis context and deterministic link/sender utility foundation without coupling rules to Gmail selectors.
