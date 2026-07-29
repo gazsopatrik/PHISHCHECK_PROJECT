@@ -12,3 +12,14 @@ h1 { margin: 6px 0; }
 button { width: 100%; padding: 11px 14px; border: 0; border-radius: 8px; background: #8f5cff; color: white; font-weight: 700; }
 button:disabled { cursor: not-allowed; opacity: 0.55; }
 .disclaimer { font-size: 0.75rem; margin-top: 18px; }
+.result { max-width: 420px; }
+.risk { border-radius: 8px; padding: 12px; font-size: 1.2rem; font-weight: 800; }
+.risk-low { background: #1e6246; }
+.risk-caution { background: #665321; }
+.risk-suspicious, .risk-high { background: #713b2f; }
+.risk-critical { background: #731f39; }
+.confidence, .summary, .limitations { color: #d6cdea; line-height: 1.45; }
+.finding { border-left: 3px solid #8f5cff; margin: 12px 0; padding: 8px 12px; background: #211d2c; }
+.finding h2 { font-size: 0.95rem; margin: 0 0 4px; }
+.finding p { font-size: 0.8rem; line-height: 1.4; margin: 6px 0; }
+.finding-meta { color: #b7a9d9; text-transform: capitalize; }
