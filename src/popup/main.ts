@@ -39,12 +39,25 @@ async function analyzeCurrentEmail(button: HTMLButtonElement): Promise<void> {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     const tabId = tabs[0]?.id;
     if (tabId === undefined) throw new Error("No active browser tab was found.");
+    const supported = await chrome.tabs.sendMessage(tabId, "PHISHCHECK_PING") as PhishCheckResponse;
+    if (!supported?.ok || !supported.supported) {
+      renderStart("Open an email in Gmail, then run the analysis again.");
+      return;
+    }
     const response = await chrome.tabs.sendMessage(tabId, "PHISHCHECK_EXTRACT_EMAIL") as PhishCheckResponse;
     if (!response?.ok || !response.email) throw new Error(response?.error ?? "PhishCheck could not extract this email.");
     renderResult(analyzeMessage(response.email, { brands: commonBrands }));
   } catch (error: unknown) {
-    renderStart(error instanceof Error ? error.message : "PhishCheck could not analyze this page.");
+    renderStart(toUserFacingError(error));
   }
+}
+
+function toUserFacingError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "";
+  if (message.includes("No open Gmail message") || message.includes("Receiving end does not exist")) return "Open an email in Gmail, then run the analysis again.";
+  if (message.includes("Gmail is not the current page")) return "Open Gmail and an email message before starting the analysis.";
+  if (message) return `PhishCheck could not reliably extract this email: ${message}`;
+  return "PhishCheck could not analyze this page.";
 }
 
 function renderResult(result: AnalysisResult): void {
@@ -58,11 +71,23 @@ function renderResult(result: AnalysisResult): void {
   const findings = document.createElement("div");
   findings.className = "findings";
   result.findings.forEach((finding) => findings.append(createFinding(finding)));
+  const highlightControls = document.createElement("div");
+  highlightControls.className = "highlight-controls";
+  const highlightButton = document.createElement("button");
+  highlightButton.type = "button";
+  highlightButton.textContent = "Highlight Suspicious Content";
+  highlightButton.addEventListener("click", () => void highlightFindings(result));
+  const clearButton = document.createElement("button");
+  clearButton.type = "button";
+  clearButton.className = "secondary-button";
+  clearButton.textContent = "Remove Highlights";
+  clearButton.addEventListener("click", () => void clearHighlights());
+  highlightControls.append(highlightButton, clearButton);
   const rerun = document.createElement("button");
   rerun.type = "button";
   rerun.textContent = "Analyze Again";
   rerun.addEventListener("click", () => renderStart());
-  section.append(heading, score, confidence, summary, findings, rerun);
+  section.append(heading, score, confidence, summary, findings, highlightControls, rerun);
   if (result.limitations.length > 0) {
     const limitations = document.createElement("p");
     limitations.className = "limitations";
@@ -77,4 +102,29 @@ function createFinding(finding: SecurityFinding): HTMLElement {
   article.className = `finding severity-${finding.severity}`;
   article.append(textElement("h2", finding.title), textElement("p", `${finding.category} · ${finding.severity} · +${finding.scoreContribution}`, "finding-meta"), textElement("p", finding.explanation), textElement("p", `Recommended action: ${finding.recommendation}`));
   return article;
+}
+
+async function activeTabId(): Promise<number> {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabId = tabs[0]?.id;
+  if (tabId === undefined) throw new Error("No active browser tab was found.");
+  return tabId;
+}
+
+async function highlightFindings(result: AnalysisResult): Promise<void> {
+  try {
+    const tabId = await activeTabId();
+    await Promise.all(result.findings.filter((finding) => finding.targetElementId).map((finding) => chrome.tabs.sendMessage(tabId, { type: "PHISHCHECK_HIGHLIGHT", finding })));
+  } catch {
+    // The result remains usable when the Gmail page is no longer available.
+  }
+}
+
+async function clearHighlights(): Promise<void> {
+  try {
+    const tabId = await activeTabId();
+    await chrome.tabs.sendMessage(tabId, "PHISHCHECK_CLEAR_HIGHLIGHTS");
+  } catch {
+    // The page may have navigated away or the content script may have been reloaded.
+  }
 }
