@@ -30,3 +30,24 @@ The first browser-independent rule modules are now available:
 All findings include a rule ID, category, severity, score contribution, confidence, evidence, recommendation, and an optional target element ID.
 
 The registrable-domain helper currently includes a small explicit multi-label suffix set. A maintained public-suffix data strategy is required before treating this as complete for global production use.
+
+## Implemented Phase 5 rules
+
+### Content and social engineering
+
+- urgency and account-consequence pressure;
+- credential, password, login, and authentication-code requests;
+- financial action requests;
+- gift-card and voucher-code requests;
+- remote-access, software-installation, and macro-enablement requests.
+
+Urgency is intentionally low severity by itself. Stronger content patterns receive higher contributions and remain bounded by the content category cap.
+
+### Attachments
+
+- executable and script extensions;
+- double extensions such as `invoice.pdf.exe`;
+- macro-enabled Office documents;
+- archives such as ZIP, RAR, and 7Z.
+
+The attachment rules inspect visible metadata only. They never download, open, extract, or execute attachments.
