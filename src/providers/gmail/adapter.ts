@@ -86,11 +86,30 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
     const target = this.environment.document.querySelector<HTMLElement>(
       `[data-phishcheck-id="${this.escapeAttribute(targetId)}"]`,
     );
-    if (!target) return;
-
     this.ensureHighlightStyle();
-    target.classList.add(HIGHLIGHT_CLASS);
-    target.setAttribute(HIGHLIGHT_ATTRIBUTE, "true");
+    if (target) {
+      target.classList.add(HIGHLIGHT_CLASS);
+      target.setAttribute(HIGHLIGHT_ATTRIBUTE, "true");
+      return;
+    }
+
+    const evidence = finding.evidence ?? {};
+    const rawHref = typeof evidence.rawHref === "string" ? evidence.rawHref : null;
+    const hostname = typeof evidence.actualHostname === "string" ? evidence.actualHostname : null;
+    this.environment.document.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((link) => {
+      let matches = rawHref !== null && link.getAttribute("href")?.trim() === rawHref;
+      if (!matches && hostname) {
+        try {
+          matches = new URL(link.href, this.environment.location.href).hostname === hostname;
+        } catch {
+          matches = false;
+        }
+      }
+      if (matches) {
+        link.classList.add(HIGHLIGHT_CLASS);
+        link.setAttribute(HIGHLIGHT_ATTRIBUTE, "true");
+      }
+    });
   }
 
   public clearHighlights(): void {
