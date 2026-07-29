@@ -1,9 +1,37 @@
 import { isExtensionRuntimeAvailable } from "../shared/browser-api";
+import type { PhishCheckMessage, PhishCheckResponse } from "../shared/messages";
+import { GmailProviderAdapter } from "../providers/gmail/adapter";
 
 if (isExtensionRuntimeAvailable()) {
-  chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
+  const provider = new GmailProviderAdapter();
+
+  chrome.runtime.onMessage.addListener((message: PhishCheckMessage, _sender, sendResponse: (response: PhishCheckResponse) => void) => {
     if (message === "PHISHCHECK_PING") {
-      sendResponse({ supported: location.hostname === "mail.google.com" });
+      sendResponse({ ok: true, supported: provider.isSupportedPage() });
+      return false;
     }
+
+    if (message === "PHISHCHECK_EXTRACT_EMAIL") {
+      provider.extractCurrentEmail().then((email) => {
+        sendResponse({ ok: true, email });
+      }).catch((error: unknown) => {
+        sendResponse({ ok: false, error: error instanceof Error ? error.message : "Email extraction failed." });
+      });
+      return true;
+    }
+
+    if (message === "PHISHCHECK_CLEAR_HIGHLIGHTS") {
+      provider.clearHighlights();
+      sendResponse({ ok: true });
+      return false;
+    }
+
+    if (typeof message === "object" && message.type === "PHISHCHECK_HIGHLIGHT") {
+      provider.highlightFinding(message.finding);
+      sendResponse({ ok: true });
+      return false;
+    }
+
+    return false;
   });
 }
