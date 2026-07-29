@@ -5,6 +5,9 @@ import { describe, expect, it } from "vitest";
 import { GmailProviderAdapter } from "./adapter";
 
 const fixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/credential-phishing.html"), "utf8");
+const legitimateMarketingFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/legitimate-marketing.html"), "utf8");
+const missingMetadataFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/missing-metadata.html"), "utf8");
+const attachmentMalwareFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/attachment-malware-lure.html"), "utf8");
 
 function createAdapter(html: string): GmailProviderAdapter {
   const window = new Window();
@@ -53,13 +56,31 @@ describe("GmailProviderAdapter", () => {
     });
     const message = await adapter.extractCurrentEmail();
     const link = window.document.querySelector("[data-phishcheck-id='gmail-link-1']");
-
     adapter.highlightFinding({ targetElementId: message.links[0]?.id });
     expect(link?.classList.contains("phishcheck-highlight")).toBe(true);
     expect(window.document.getElementById("phishcheck-highlight-style")).not.toBeNull();
-
     adapter.clearHighlights();
     expect(link?.classList.contains("phishcheck-highlight")).toBe(false);
     expect(window.document.getElementById("phishcheck-highlight-style")).toBeNull();
+  });
+
+  it("extracts a legitimate marketing message without inventing warnings", async () => {
+    const message = await createAdapter(legitimateMarketingFixture).extractCurrentEmail();
+    expect(message.sender?.address).toBe("updates@trusted.example");
+    expect(message.links).toHaveLength(1);
+    expect(message.attachments).toHaveLength(0);
+    expect(message.extractionWarnings).toEqual([]);
+  });
+
+  it("records missing sender metadata explicitly", async () => {
+    const message = await createAdapter(missingMetadataFixture).extractCurrentEmail();
+    expect(message.sender).toBeNull();
+    expect(message.extractionWarnings).toContain("Sender address was not visible in the Gmail UI.");
+  });
+
+  it("extracts attachment metadata without opening or downloading files", async () => {
+    const message = await createAdapter(attachmentMalwareFixture).extractCurrentEmail();
+    expect(message.attachments.map((attachment) => attachment.filename)).toEqual(["invoice.pdf.exe", "documents.zip"]);
+    expect(message.attachments.every((attachment) => attachment.id.startsWith("gmail-attachment-"))).toBe(true);
   });
 });
