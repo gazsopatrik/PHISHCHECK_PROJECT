@@ -50,22 +50,22 @@ Validation: 9 test files, 23 tests passed.
 
 ## Phase 8 — Runtime handling, broader fixtures, and Opera GX checklist
 
-### Completed
+Added unsupported-page and no-open-email preflight, user-readable runtime errors, legitimate/missing-metadata/attachment-lure fixtures, broader adapter tests, and the `OPERA_GX_TESTING.md` manual checklist.
 
-- Added explicit popup preflight for unsupported pages and no-open-email states.
-- Mapped content-script and extraction failures to user-readable messages without raw stack traces.
-- Added legitimate marketing, missing-metadata, and attachment-malware-lure Gmail fixtures.
-- Expanded Gmail adapter coverage for legitimate messages, missing sender data, and attachment metadata.
-- Added `OPERA_GX_TESTING.md` with the manual Opera GX smoke-test procedure.
-- Linked the Opera GX checklist from the README and testing documentation.
+Validation before selector follow-up: 9 test files, 26 tests passed.
 
-### Validation
+## Phase 8 follow-up — Gmail DOM compatibility fix
+
+- Broadened Gmail body detection beyond the legacy `.a3s.aiL` selector.
+- Added semantic fallbacks for message containers and `dir="ltr"`/`dir="auto"` body elements.
+- Added fallback sender and subject selectors based on semantic attributes.
+- Added a semantic-body fixture reproducing the previously missed message shape.
+- Rebuilt the production `dist` output after the selector fix.
+
+Validation after the fix:
 
 - `pnpm build` — passed.
 - `pnpm lint` — passed.
-- `pnpm test` — passed: 9 test files, 26 tests.
-- Opera GX manual validation — checklist prepared; execution pending.
+- `pnpm test` — passed: 9 test files, 27 tests.
 
-### Next step
-
-Execute the Opera GX manual smoke test when the browser is available, then continue with release hardening and permission/security review.
+Opera GX manual validation is still pending and should be run against the freshly built `dist` directory.
