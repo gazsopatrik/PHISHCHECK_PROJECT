@@ -22,7 +22,7 @@ describe("analysis engine", () => {
     const result = analyzeMessage(message, { brands: commonBrands });
     expect(result.riskScore).toBe(44);
     expect(result.riskLevel).toBe("suspicious");
-    expect(result.confidenceLevel).toBe("high");
+    expect(result.confidenceLevel).toBe("medium");
     expect(result.findings.map((finding) => finding.ruleId)).toContain("CORRELATION_BRAND_SENDER_LINK");
     expect(result.summary).toContain("44/100");
   });
@@ -61,6 +61,20 @@ describe("analysis engine", () => {
 
     expect(result.riskScore).toBe(0);
     expect(result.findings.some((finding) => finding.category === "missing-information")).toBe(true);
+  });
+
+  it("flags manipulative adult-content spam even without a classic phishing keyword", () => {
+    const result = analyzeMessage({
+      ...message,
+      sender: { displayName: "Unknown", address: "offers@example.test" },
+      bodyText: "A hypnotic sex technique helped thousands of men last longer in as little as 21 days.",
+      links: [],
+    }, { brands: commonBrands });
+
+    expect(result.riskScore).toBeGreaterThanOrEqual(35);
+    expect(result.findings.map((finding) => finding.ruleId)).toContain("CORRELATION_MANIPULATIVE_SPAM_CONTENT");
+    expect(result.confidenceScore).toBe(75);
+    expect(result.confidenceLevel).toBe("medium");
   });
 });
 
