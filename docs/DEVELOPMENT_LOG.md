@@ -82,3 +82,15 @@ Validation after the compatibility fix:
 - `pnpm build` — passed.
 - `pnpm lint` — passed.
 - `pnpm test` — passed: 9 test files, 27 tests.
+
+## Phase 8 follow-up — Classic content-script bundle compatibility
+
+- Removed the runtime ESM import from the Gmail content-script entry point.
+- Kept the content script self-contained because Opera GX loads Manifest V3 content scripts as classic scripts.
+- Verified the generated `dist/content.js` contains no top-level `import` statement.
+
+Validation after the bundling fix:
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 9 test files, 27 tests.
