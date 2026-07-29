@@ -109,6 +109,25 @@ The registrable-domain helper intentionally uses a small explicit multi-label su
 - `pnpm test` — passed: 7 test files, 16 tests.
 - Opera GX manual validation — pending.
 
+## Phase 5 — Content and attachment analysis
+
+### Completed
+
+- Added deterministic English content rules for urgency, credential requests, financial requests, gift cards, and remote access/software actions.
+- Kept urgency low severity when it appears without stronger evidence.
+- Added executable, script, double-extension, macro-enabled document, and archive attachment rules.
+- Kept attachment analysis metadata-only; no attachment is downloaded, opened, extracted, or executed.
+- Integrated content and attachment findings into the main analysis engine.
+- Added tests for matched evidence, low-severity urgency, dangerous attachment types, and final score integration.
+- Documented the Phase 5 rule behavior in `RULES.md`.
+
+### Validation
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 8 test files, 20 tests.
+- Opera GX manual validation — pending.
+
 ### Next step
 
-Begin Phase 5: add deterministic language/social-engineering and attachment rules, then include them in the analysis engine.
+Begin Phase 6: add content consistency rules, missing-information findings, and the first user-facing popup result flow.
