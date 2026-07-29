@@ -7,7 +7,7 @@ import type {
 import type { EmailProviderAdapter, SecurityFindingTarget } from "../../models/provider";
 import { gmailSelectors } from "./selectors";
 
-const GMAIL_HOSTNAME = "mail.google.com";
+const GMAIL_HOSTNAMES = new Set(["mail.google.com", "gmail.com", "www.gmail.com"]);
 const HIGHLIGHT_CLASS = "phishcheck-highlight";
 const HIGHLIGHT_ATTRIBUTE = "data-phishcheck-highlight";
 const HIGHLIGHT_STYLE_ID = "phishcheck-highlight-style";
@@ -25,7 +25,7 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
   }
 
   public isSupportedPage(): boolean {
-    return this.environment.location.hostname === GMAIL_HOSTNAME;
+    return GMAIL_HOSTNAMES.has(this.environment.location.hostname);
   }
 
   public isEmailOpen(): boolean {
