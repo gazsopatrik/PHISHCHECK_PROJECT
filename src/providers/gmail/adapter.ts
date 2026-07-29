@@ -10,6 +10,7 @@ import { gmailSelectors } from "./selectors";
 const GMAIL_HOSTNAMES = new Set(["mail.google.com", "gmail.com", "www.gmail.com"]);
 const HIGHLIGHT_CLASS = "phishcheck-highlight";
 const HIGHLIGHT_ATTRIBUTE = "data-phishcheck-highlight";
+const TEXT_HIGHLIGHT_ATTRIBUTE = "data-phishcheck-text-highlight";
 const HIGHLIGHT_STYLE_ID = "phishcheck-highlight-style";
 
 interface GmailAdapterEnvironment {
@@ -86,14 +87,17 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
     const target = this.environment.document.querySelector<HTMLElement>(
       `[data-phishcheck-id="${this.escapeAttribute(targetId)}"]`,
     );
+    const evidence = finding.evidence ?? {};
+    const matchedText = typeof evidence.matchedText === "string" ? evidence.matchedText : null;
     this.ensureHighlightStyle();
+    if (targetId === "gmail-message-body" && target && matchedText && this.highlightText(target, matchedText)) {
+      return;
+    }
     if (target) {
-      target.classList.add(HIGHLIGHT_CLASS);
-      target.setAttribute(HIGHLIGHT_ATTRIBUTE, "true");
+      this.applyHighlight(target);
       return;
     }
 
-    const evidence = finding.evidence ?? {};
     const rawHref = typeof evidence.rawHref === "string" ? evidence.rawHref : null;
     const hostname = typeof evidence.actualHostname === "string" ? evidence.actualHostname : null;
     this.environment.document.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((link) => {
@@ -106,13 +110,19 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
         }
       }
       if (matches) {
-        link.classList.add(HIGHLIGHT_CLASS);
-        link.setAttribute(HIGHLIGHT_ATTRIBUTE, "true");
+        this.applyHighlight(link);
       }
     });
   }
 
   public clearHighlights(): void {
+    this.environment.document.querySelectorAll<HTMLElement>(`[${TEXT_HIGHLIGHT_ATTRIBUTE}]`).forEach((element) => {
+      const parent = element.parentNode;
+      if (!parent) return;
+      while (element.firstChild) parent.insertBefore(element.firstChild, element);
+      parent.removeChild(element);
+      parent.normalize();
+    });
     this.environment.document.querySelectorAll<HTMLElement>(`[${HIGHLIGHT_ATTRIBUTE}]`).forEach((element) => {
       element.classList.remove(HIGHLIGHT_CLASS);
       element.removeAttribute(HIGHLIGHT_ATTRIBUTE);
@@ -229,6 +239,53 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
 
   private escapeAttribute(value: string): string {
     return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  }
+
+  private applyHighlight(element: HTMLElement): void {
+    element.classList.add(HIGHLIGHT_CLASS);
+    element.setAttribute(HIGHLIGHT_ATTRIBUTE, "true");
+  }
+
+  private highlightText(container: HTMLElement, matchedText: string): boolean {
+    const needle = matchedText.trim();
+    if (!needle) return false;
+    const needleLower = needle.toLocaleLowerCase();
+    const textNodes: Text[] = [];
+    const elements = [container, ...Array.from(container.querySelectorAll<HTMLElement>("*"))];
+
+    for (const element of elements) {
+      if (element.closest(`[${HIGHLIGHT_ATTRIBUTE}]`)) continue;
+      for (const child of Array.from(element.childNodes)) {
+        if (child.nodeType !== 3) continue; // Text node
+        const node = child as Text;
+        if (node.data.toLocaleLowerCase().includes(needleLower)) textNodes.push(node);
+      }
+    }
+
+    for (const node of textNodes) {
+      const parent = node.parentNode;
+      if (!parent) continue;
+      const source = node.data;
+      const sourceLower = source.toLocaleLowerCase();
+      const fragment = this.environment.document.createDocumentFragment();
+      let offset = 0;
+      let matchIndex = sourceLower.indexOf(needleLower, offset);
+
+      while (matchIndex >= 0) {
+        if (matchIndex > offset) fragment.append(this.environment.document.createTextNode(source.slice(offset, matchIndex)));
+        const highlight = this.environment.document.createElement("span");
+        highlight.setAttribute(TEXT_HIGHLIGHT_ATTRIBUTE, "true");
+        highlight.textContent = source.slice(matchIndex, matchIndex + needle.length);
+        this.applyHighlight(highlight);
+        fragment.append(highlight);
+        offset = matchIndex + needle.length;
+        matchIndex = sourceLower.indexOf(needleLower, offset);
+      }
+      if (offset < source.length) fragment.append(this.environment.document.createTextNode(source.slice(offset)));
+      parent.replaceChild(fragment, node);
+    }
+
+    return textNodes.length > 0;
   }
 
   private ensureHighlightStyle(): void {
