@@ -39,12 +39,12 @@ async function analyzeCurrentEmail(button: HTMLButtonElement): Promise<void> {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     const tabId = tabs[0]?.id;
     if (tabId === undefined) throw new Error("No active browser tab was found.");
-    const supported = await chrome.tabs.sendMessage(tabId, "PHISHCHECK_PING") as PhishCheckResponse;
+    const supported = await sendContentMessage(tabId, "PHISHCHECK_PING");
     if (!supported?.ok || !supported.supported) {
       renderStart("Open an email in Gmail, then run the analysis again.");
       return;
     }
-    const response = await chrome.tabs.sendMessage(tabId, "PHISHCHECK_EXTRACT_EMAIL") as PhishCheckResponse;
+    const response = await sendContentMessage(tabId, "PHISHCHECK_EXTRACT_EMAIL");
     if (!response?.ok || !response.email) throw new Error(response?.error ?? "PhishCheck could not extract this email.");
     renderResult(analyzeMessage(response.email, { brands: commonBrands }));
   } catch (error: unknown) {
@@ -102,6 +102,18 @@ function createFinding(finding: SecurityFinding): HTMLElement {
   article.className = `finding severity-${finding.severity}`;
   article.append(textElement("h2", finding.title), textElement("p", `${finding.category} · ${finding.severity} · +${finding.scoreContribution}`, "finding-meta"), textElement("p", finding.explanation), textElement("p", `Recommended action: ${finding.recommendation}`));
   return article;
+}
+
+async function sendContentMessage(tabId: number, message: "PHISHCHECK_PING" | "PHISHCHECK_EXTRACT_EMAIL"): Promise<PhishCheckResponse> {
+  try {
+    return await chrome.tabs.sendMessage(tabId, message) as PhishCheckResponse;
+  } catch (error: unknown) {
+    const reason = error instanceof Error ? error.message : "";
+    if (!reason.includes("Receiving end does not exist") && !reason.includes("Could not establish connection")) throw error;
+    await chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    return await chrome.tabs.sendMessage(tabId, message) as PhishCheckResponse;
+  }
 }
 
 async function activeTabId(): Promise<number> {
