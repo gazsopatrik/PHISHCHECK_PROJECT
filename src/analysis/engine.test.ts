@@ -20,16 +20,33 @@ const message: EmailMessage = {
 describe("analysis engine", () => {
   it("returns explainable score, risk, confidence, and correlation findings", () => {
     const result = analyzeMessage(message, { brands: commonBrands });
-    expect(result.riskScore).toBe(44);
+    expect(result.riskScore).toBe(59);
     expect(result.riskLevel).toBe("suspicious");
     expect(result.confidenceLevel).toBe("high");
     expect(result.findings.map((finding) => finding.ruleId)).toContain("CORRELATION_BRAND_SENDER_LINK");
-    expect(result.summary).toContain("44/100");
+    expect(result.summary).toContain("59/100");
   });
 
   it("lowers confidence when extraction metadata is missing", () => {
     const result = analyzeMessage({ ...message, sender: null, subject: null, bodyHtml: null, extractionWarnings: ["Body partially hidden.", "Sender metadata unavailable.", "Link extraction was incomplete."] }, { brands: commonBrands });
     expect(result.confidenceLevel).toBe("low");
     expect(result.limitations.length).toBeGreaterThan(0);
+  });
+
+  it("includes content and attachment findings in the final score", () => {
+    const result = analyzeMessage({
+      ...message,
+      bodyText: "Immediate action required. Send your password and buy gift cards now.",
+      attachments: [{ id: "attachment-1", filename: "invoice.pdf.exe", extension: "exe", displayedSize: null }],
+    }, { brands: commonBrands });
+
+    expect(result.findings.map((finding) => finding.ruleId)).toEqual(expect.arrayContaining([
+      "CONTENT_URGENCY",
+      "CONTENT_CREDENTIAL_REQUEST",
+      "CONTENT_GIFT_CARD_REQUEST",
+      "ATTACHMENT_EXECUTABLE",
+      "ATTACHMENT_DOUBLE_EXTENSION",
+    ]));
+    expect(result.riskScore).toBeGreaterThan(60);
   });
 });
