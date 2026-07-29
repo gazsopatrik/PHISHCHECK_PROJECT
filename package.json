@@ -1,0 +1,26 @@
+{
+  "name": "phishcheck",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Opera GX-first local phishing email analyzer browser extension",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "dev": "vite build --watch",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "test": "vitest run"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}
