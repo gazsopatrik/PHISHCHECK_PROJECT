@@ -3,7 +3,7 @@ import type { EmailMessage } from "../../models/email";
 import { domainsMatchOrRelated } from "../../utils/domains";
 
 function finding(ruleId: string, severity: SecurityFinding["severity"], scoreContribution: number, title: string, explanation: string, recommendation: string, evidence: Record<string, unknown>): SecurityFinding {
-  return { id: ruleId, ruleId, category: "consistency", severity, scoreContribution, confidence: 0.72, title, explanation, evidence, recommendation };
+  return { id: ruleId, ruleId, category: "consistency", severity, scoreContribution, confidence: 0.72, title, explanation, evidence, recommendation, targetElementId: typeof evidence.linkId === "string" ? evidence.linkId : undefined };
 }
 
 function signatureName(bodyText: string): string | null {
@@ -33,7 +33,7 @@ export const consistencyRules: readonly AnalysisRule[] = [
       if (!senderDomain) return [];
       const unrelatedLinks = message.links.filter((link) => link.hostname && !domainsMatchOrRelated(senderDomain, link.hostname));
       if (unrelatedLinks.length === 0) return [];
-      return [finding("CONSISTENCY_UNRELATED_DOMAINS", "low", 5, "A visible link uses an unrelated domain", "At least one visible link points to a domain unrelated to the sender domain. This can be legitimate for mailing infrastructure, but it deserves verification.", "Check the destination and verify the request through the claimed organization's official website.", { senderDomain, unrelatedDomains: unrelatedLinks.map((link) => link.hostname), linkIds: unrelatedLinks.map((link) => link.id) })];
+      return [finding("CONSISTENCY_UNRELATED_DOMAINS", "low", 5, "A visible link uses an unrelated domain", "At least one visible link points to a domain unrelated to the sender domain. This can be legitimate for mailing infrastructure, but it deserves verification.", "Check the destination and verify the request through the claimed organization's official website.", { senderDomain, unrelatedDomains: unrelatedLinks.map((link) => link.hostname), linkIds: unrelatedLinks.map((link) => link.id), linkId: unrelatedLinks[0]?.id })];
     },
   },
 ];
@@ -41,3 +41,4 @@ export const consistencyRules: readonly AnalysisRule[] = [
 export function runConsistencyRules(message: EmailMessage, _context: AnalysisContext): SecurityFinding[] {
   return consistencyRules.flatMap((rule) => rule.analyze(message, _context));
 }
+
