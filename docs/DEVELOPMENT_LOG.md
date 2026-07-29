@@ -128,6 +128,30 @@ The registrable-domain helper intentionally uses a small explicit multi-label su
 - `pnpm test` — passed: 8 test files, 20 tests.
 - Opera GX manual validation — pending.
 
+## Phase 6 — Consistency rules and functional popup flow
+
+### Completed
+
+- Added signature-versus-sender consistency detection.
+- Added sender-domain versus visible-link-domain inconsistency detection.
+- Added missing sender, missing body, and extraction-warning findings.
+- Added a typed popup/content-script message protocol.
+- Connected the popup's Analyze Email action to the active Gmail tab.
+- Connected the Gmail content script to the provider adapter for local extraction.
+- Connected the popup to the local analysis engine and common brand definitions.
+- Added user-readable score, risk level, confidence, findings, recommendations, and limitations rendering.
+- Rendered result text through DOM nodes rather than inserting email HTML.
+- Added user-readable extraction failure handling.
+- Added consistency and missing-information tests.
+- Improved popup heading semantics for keyboard and assistive-technology users.
+
+### Validation
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 9 test files, 22 tests.
+- Opera GX manual installation and live Gmail analysis — pending.
+
 ### Next step
 
-Begin Phase 6: add content consistency rules, missing-information findings, and the first user-facing popup result flow.
+Begin Phase 7: implement highlight controls, clear-highlights messaging, and a more complete accessible result UI.
