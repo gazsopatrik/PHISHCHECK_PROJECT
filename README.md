@@ -70,6 +70,7 @@ The implementation uses strict TypeScript, Vite, Manifest V3, ESLint, Prettier, 
 - [Privacy](./PRIVACY.md)
 - [Security](./SECURITY.md)
 - [Testing](./TESTING.md)
+- [Opera GX manual testing](./OPERA_GX_TESTING.md)
 
 ## Scope limitations
 
