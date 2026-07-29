@@ -57,6 +57,33 @@ const contentPatterns: readonly ContentPattern[] = [
     explanation: "The content asks for remote access, screen sharing, software installation, or macro execution.",
     recommendation: "Do not install software or enable macros from the message. Contact your organization through a trusted channel.",
   },
+  {
+    id: "CONTENT_ADULT_SCAM_LURE",
+    pattern: /\b(last longer|sexual performance|sex(?:ual)? technique|hypnotic.{0,40}(?:sex|arousal|orgasm)|hyperactive arousal|orgasm|climax|pleasure (?:a )?woman|vag[1i]na)\b/i,
+    severity: "high",
+    scoreContribution: 18,
+    title: "The message uses an adult-content sales lure",
+    explanation: "The content uses sexual-performance or adult-content claims commonly found in deceptive marketing and spam campaigns.",
+    recommendation: "Do not follow the message links. Delete or report the message as spam unless you independently recognize the sender.",
+  },
+  {
+    id: "CONTENT_OBFUSCATED_WORDING",
+    pattern: /\b(?:s3x|vag1na|org4sm|cl1ck|fr[e3]{2})\b/i,
+    severity: "medium",
+    scoreContribution: 12,
+    title: "The message disguises words with character substitutions",
+    explanation: "Character substitutions can be used to evade spam filters or make a mass-marketing message appear less detectable.",
+    recommendation: "Treat the message as suspicious and avoid interacting with its links.",
+  },
+  {
+    id: "CONTENT_UNVERIFIABLE_PROMISE",
+    pattern: /\b(helped thousands|as little as \d+ days|stanford discovered|secret technique|powerful hypnosis|guaranteed results?|miracle)\b/i,
+    severity: "medium",
+    scoreContribution: 8,
+    title: "The message makes an unverifiable promotional claim",
+    explanation: "The wording relies on broad social proof, authority, or rapid-results claims without verifiable evidence.",
+    recommendation: "Do not rely on the claim or follow its links without independently verifying the sender and offer.",
+  },
 ];
 
 function createFinding(pattern: ContentPattern, evidence: Record<string, unknown>): SecurityFinding {
