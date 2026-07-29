@@ -52,20 +52,20 @@ Validation: 9 test files, 23 tests passed.
 
 Added unsupported-page and no-open-email preflight, user-readable runtime errors, legitimate/missing-metadata/attachment-lure fixtures, broader adapter tests, and the `OPERA_GX_TESTING.md` manual checklist.
 
-Validation before selector follow-up: 9 test files, 26 tests passed.
-
 ## Phase 8 follow-up — Gmail DOM compatibility fix
 
-- Broadened Gmail body detection beyond the legacy `.a3s.aiL` selector.
-- Added semantic fallbacks for message containers and `dir="ltr"`/`dir="auto"` body elements.
-- Added fallback sender and subject selectors based on semantic attributes.
-- Added a semantic-body fixture reproducing the previously missed message shape.
-- Rebuilt the production `dist` output after the selector fix.
+Broadened Gmail body, sender, and subject selectors beyond legacy classes and added a semantic-body fixture.
 
-Validation after the fix:
+Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 27 tests.
 
-- `pnpm build` — passed.
-- `pnpm lint` — passed.
-- `pnpm test` — passed: 9 test files, 27 tests.
+## Phase 8 follow-up — Opera GX content-script connection fix
 
-Opera GX manual validation is still pending and should be run against the freshly built `dist` directory.
+- Added `gmail.com` and `www.gmail.com` host support alongside `mail.google.com`.
+- Added dynamic active-tab injection of the bundled content script when Opera GX reports no receiving content script.
+- Added separate user-facing messaging for unsupported pages, no open message, and failed content-script connection.
+- Updated the Manifest V3 Gmail matches and host permissions.
+- Rebuilt the production `dist` output.
+
+Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 27 tests.
+
+Opera GX manual validation must be run against this freshly built `dist` directory.
