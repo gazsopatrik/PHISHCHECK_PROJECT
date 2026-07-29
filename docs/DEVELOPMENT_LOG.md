@@ -69,3 +69,16 @@ Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 27 tests.
 Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 27 tests.
 
 Opera GX manual validation must be run against this freshly built `dist` directory.
+
+## Phase 8 follow-up — Opera GX callback API compatibility
+
+- Replaced popup calls to `tabs.query`, `tabs.sendMessage`, and `scripting.executeScript` with callback-based wrappers.
+- Read `chrome.runtime.lastError` inside each callback so Opera GX connection and injection failures are surfaced reliably.
+- Kept dynamic content-script injection as a recovery path when the Gmail tab has no active receiver.
+- Rebuilt the production `dist` output.
+
+Validation after the compatibility fix:
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 9 test files, 27 tests.
