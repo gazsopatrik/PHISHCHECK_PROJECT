@@ -265,12 +265,13 @@ Validation after the compatibility fix:
 - `pnpm lint` Ă˘â‚¬â€ť passed.
 - `pnpm test` Ă˘â‚¬â€ť passed: 9 test files, 27 tests.
 
+## Phase 9 â€” False-positive calibration and broader highlighting
 
-## Phase 9 — False-positive calibration and broader highlighting
-
-- Narrowed credential and financial content patterns so ordinary account notices and payment confirmations are not automatically treated as phishing requests.
+- Narrowed credential and financial content patterns so ordinary account notices are not automatically treated as phishing requests.
 - Changed missing extraction metadata from scored risk evidence to a zero-point limitation finding.
-- Added message-body highlight targets for content findings and link targets for unrelated-domain consistency findings.
-- Added regression coverage for legitimate-looking notifications and highlight target assignment.
+- Added message-body and link highlight targets.
+- Prevented ordinary call-to-action text such as `WATCH VIDEO` from being parsed as a visible domain.
+- Added highlight fallback matching by extracted href or destination hostname when Gmail rerenders and removes temporary IDs.
 
-Validation: pnpm build, pnpm lint, and pnpm test passed with 29 tests.
+Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 29 tests.
+
