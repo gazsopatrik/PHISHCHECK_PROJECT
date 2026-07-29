@@ -2,7 +2,7 @@ import type { AnalysisContext, AnalysisRule, SecurityFinding } from "../../model
 import type { EmailMessage } from "../../models/email";
 
 function missingFinding(id: string, title: string, explanation: string, evidence: Record<string, unknown>): SecurityFinding {
-  return { id, ruleId: id, category: "missing-information", severity: "info", scoreContribution: 2, confidence: 0.98, title, explanation, evidence, recommendation: "Treat the result as limited and verify sensitive requests through a trusted channel." };
+  return { id, ruleId: id, category: "missing-information", severity: "info", scoreContribution: 0, confidence: 0.98, title, explanation, evidence, recommendation: "Treat the result as limited and verify sensitive requests through a trusted channel." };
 }
 
 export const missingInformationRules: readonly AnalysisRule[] = [
@@ -26,3 +26,4 @@ export const missingInformationRules: readonly AnalysisRule[] = [
 export function runMissingInformationRules(message: EmailMessage, _context: AnalysisContext): SecurityFinding[] {
   return missingInformationRules.flatMap((rule) => rule.analyze(message, _context));
 }
+
