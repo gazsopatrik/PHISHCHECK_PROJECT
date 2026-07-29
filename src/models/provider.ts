@@ -2,6 +2,7 @@ import type { EmailMessage } from "./email";
 
 export interface SecurityFindingTarget {
   targetElementId?: string;
+  evidence?: Record<string, unknown>;
 }
 
 export interface EmailProviderAdapter {
@@ -11,3 +12,4 @@ export interface EmailProviderAdapter {
   highlightFinding(finding: SecurityFindingTarget): void;
   clearHighlights(): void;
 }
+
