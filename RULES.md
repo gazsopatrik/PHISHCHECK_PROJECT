@@ -51,3 +51,13 @@ Urgency is intentionally low severity by itself. Stronger content patterns recei
 - archives such as ZIP, RAR, and 7Z.
 
 The attachment rules inspect visible metadata only. They never download, open, extract, or execute attachments.
+
+## Implemented Phase 6 rules
+
+- signature name versus visible sender mismatch;
+- sender domain versus visible link domain inconsistency;
+- missing sender address;
+- missing message body;
+- explicit extraction-warning findings.
+
+Unrelated domains are treated as a caution signal rather than proof of phishing because legitimate mailing providers and SaaS services may use separate domains.
