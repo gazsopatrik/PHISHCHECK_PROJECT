@@ -14,7 +14,9 @@ export interface ParsedUrl {
 }
 
 export function parseUrl(rawUrl: string, baseUrl = "https://mail.google.com"): ParsedUrl {
-  if (/\s/.test(rawUrl)) return { raw: rawUrl, normalized: null, hostname: null, protocol: null, path: null, isIp: false, isPunycode: false };
+  if (/\s/.test(rawUrl)) {
+    return { raw: rawUrl, normalized: null, hostname: null, protocol: null, path: null, isIp: false, isPunycode: false };
+  }
   try {
     const url = new URL(rawUrl, baseUrl);
     return {
@@ -51,7 +53,10 @@ export function hasSuspiciousRedirectParameter(rawUrl: string): boolean {
 
 export function visibleTextSuggestsDifferentDomain(displayText: string, destinationHostname: string | null): boolean {
   if (!destinationHostname) return false;
+  const visibleUrlPattern = /^(?:https?:\/\/|www\.)[^\s]+|^(?:[a-z0-9-]+\.)+[a-z]{2,}(?:[/:?#]|$)/i;
+  if (!visibleUrlPattern.test(displayText.trim())) return false;
   const displayUrl = parseUrl(displayText);
   if (!displayUrl.hostname) return false;
   return !domainsMatchOrRelated(displayUrl.hostname, destinationHostname);
 }
+
