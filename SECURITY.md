@@ -10,3 +10,5 @@ Email content is hostile input. The implementation must treat extracted text, UR
 - Report missing extraction data instead of inventing values.
 
 Opera GX validation must include extension installation, popup isolation, message passing, focus behavior, zoom, dark mode, and Gmail navigation.
+
+The popup may use the existing `activeTab` and `scripting` permissions to inject the bundled content script into the active tab when a static content-script connection is unavailable. This is limited to the user-initiated analysis action and the active tab; it does not create broad site access or background scraping.
