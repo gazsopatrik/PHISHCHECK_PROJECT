@@ -1,8 +1,9 @@
-import { isExtensionRuntimeAvailable } from "../shared/browser-api";
 import type { PhishCheckMessage, PhishCheckResponse } from "../shared/messages";
 import { GmailProviderAdapter } from "../providers/gmail/adapter";
 
-if (isExtensionRuntimeAvailable()) {
+// Content scripts are loaded as classic scripts by Opera GX, so this entry must
+// stay self-contained and must not depend on an ESM import at runtime.
+if (typeof chrome !== "undefined" && typeof chrome.runtime !== "undefined") {
   const provider = new GmailProviderAdapter();
 
   chrome.runtime.onMessage.addListener((message: PhishCheckMessage, _sender, sendResponse: (response: PhishCheckResponse) => void) => {
