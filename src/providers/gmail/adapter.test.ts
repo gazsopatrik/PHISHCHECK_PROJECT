@@ -8,6 +8,7 @@ const fixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixture
 const legitimateMarketingFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/legitimate-marketing.html"), "utf8");
 const missingMetadataFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/missing-metadata.html"), "utf8");
 const attachmentMalwareFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/attachment-malware-lure.html"), "utf8");
+const semanticBodyFixture = readFileSync(resolve(process.cwd(), "src/providers/gmail/fixtures/semantic-body.html"), "utf8");
 
 function createAdapter(html: string): GmailProviderAdapter {
   const window = new Window();
@@ -82,5 +83,11 @@ describe("GmailProviderAdapter", () => {
     const message = await createAdapter(attachmentMalwareFixture).extractCurrentEmail();
     expect(message.attachments.map((attachment) => attachment.filename)).toEqual(["invoice.pdf.exe", "documents.zip"]);
     expect(message.attachments.every((attachment) => attachment.id.startsWith("gmail-attachment-"))).toBe(true);
+  });
+
+  it("uses semantic Gmail fallbacks when legacy body classes are absent", async () => {
+    const message = await createAdapter(semanticBodyFixture).extractCurrentEmail();
+    expect(message.bodyText).toContain("semantic direction attribute");
+    expect(message.links).toHaveLength(1);
   });
 });
