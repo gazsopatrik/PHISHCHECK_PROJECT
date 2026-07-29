@@ -89,6 +89,26 @@ This file records the implementation work for PhishCheck. Entries are written in
 
 The registrable-domain helper intentionally uses a small explicit multi-label suffix set in this phase. A maintained Public Suffix List strategy is required before global production use.
 
+## Phase 4 — Scoring, confidence, and correlations
+
+### Completed
+
+- Added `AnalysisResult`, risk-level, confidence-level, and category scoring models.
+- Added category caps for sender, links, content, attachments, consistency, and missing information.
+- Added normalized 0–100 risk scoring with the specified risk thresholds.
+- Added separate confidence calculation based on missing metadata and extraction warnings.
+- Added user-facing summary and limitation generation.
+- Added a sender-brand plus link-destination correlation rule.
+- Added scoring, engine, confidence, and correlation tests.
+- Added `SCORING.md` to document scoring and confidence decisions.
+
+### Validation
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 7 test files, 16 tests.
+- Opera GX manual validation — pending.
+
 ### Next step
 
-Begin Phase 4: add the scoring engine, category caps, confidence calculation, and correlation rules around the existing findings.
+Begin Phase 5: add deterministic language/social-engineering and attachment rules, then include them in the analysis engine.
