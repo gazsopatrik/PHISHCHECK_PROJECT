@@ -36,7 +36,7 @@ async function analyzeCurrentEmail(button: HTMLButtonElement): Promise<void> {
   button.disabled = true;
   button.textContent = "Analyzing…";
   try {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabs = await queryActiveTabs();
     const tabId = tabs[0]?.id;
     if (tabId === undefined) throw new Error("No active browser tab was found.");
     const supported = await sendContentMessage(tabId, "PHISHCHECK_PING");
@@ -106,18 +106,61 @@ function createFinding(finding: SecurityFinding): HTMLElement {
 
 async function sendContentMessage(tabId: number, message: "PHISHCHECK_PING" | "PHISHCHECK_EXTRACT_EMAIL"): Promise<PhishCheckResponse> {
   try {
-    return await chrome.tabs.sendMessage(tabId, message) as PhishCheckResponse;
+    return await sendTabMessage<PhishCheckResponse>(tabId, message);
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : "";
     if (!reason.includes("Receiving end does not exist") && !reason.includes("Could not establish connection")) throw error;
-    await chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
+    await injectContentScript(tabId);
     await new Promise((resolve) => setTimeout(resolve, 50));
-    return await chrome.tabs.sendMessage(tabId, message) as PhishCheckResponse;
+    return await sendTabMessage<PhishCheckResponse>(tabId, message);
   }
 }
 
+function queryActiveTabs(): Promise<chrome.tabs.Tab[]> {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const error = chrome.runtime.lastError;
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+      resolve(tabs);
+    });
+  });
+}
+
+function sendTabMessage<TResponse>(tabId: number, message: unknown): Promise<TResponse> {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(tabId, message, (response: TResponse) => {
+      const error = chrome.runtime.lastError;
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+      resolve(response);
+    });
+  });
+}
+
+function injectContentScript(tabId: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!chrome.scripting?.executeScript) {
+      reject(new Error("Opera GX does not expose the Manifest V3 scripting API."));
+      return;
+    }
+    chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] }, () => {
+      const error = chrome.runtime.lastError;
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
 async function activeTabId(): Promise<number> {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await queryActiveTabs();
   const tabId = tabs[0]?.id;
   if (tabId === undefined) throw new Error("No active browser tab was found.");
   return tabId;
@@ -126,7 +169,8 @@ async function activeTabId(): Promise<number> {
 async function highlightFindings(result: AnalysisResult): Promise<void> {
   try {
     const tabId = await activeTabId();
-    await Promise.all(result.findings.filter((finding) => finding.targetElementId).map((finding) => chrome.tabs.sendMessage(tabId, { type: "PHISHCHECK_HIGHLIGHT", finding })));
+    await sendContentMessage(tabId, "PHISHCHECK_PING");
+    await Promise.all(result.findings.filter((finding) => finding.targetElementId).map((finding) => sendTabMessage(tabId, { type: "PHISHCHECK_HIGHLIGHT", finding })));
   } catch {
     // The result remains usable when the Gmail page is no longer available.
   }
@@ -135,7 +179,7 @@ async function highlightFindings(result: AnalysisResult): Promise<void> {
 async function clearHighlights(): Promise<void> {
   try {
     const tabId = await activeTabId();
-    await chrome.tabs.sendMessage(tabId, "PHISHCHECK_CLEAR_HIGHLIGHTS");
+    await sendTabMessage(tabId, "PHISHCHECK_CLEAR_HIGHLIGHTS");
   } catch {
     // The page may have navigated away or the content script may have been reloaded.
   }
