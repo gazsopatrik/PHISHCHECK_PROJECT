@@ -33,17 +33,25 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
   }
 
   public async extractCurrentEmail(): Promise<EmailMessage> {
-    if (!this.isSupportedPage()) throw new Error("Gmail is not the current page.");
+    if (!this.isSupportedPage()) {
+      throw new Error("Gmail is not the current page.");
+    }
 
     const extractionWarnings: string[] = [];
     const bodyElement = this.findFirst(gmailSelectors.body);
-    if (!bodyElement) throw new Error("No open Gmail message could be reliably identified.");
+
+    if (!bodyElement) {
+      throw new Error("No open Gmail message could be reliably identified.");
+    }
+    bodyElement.setAttribute("data-phishcheck-id", "gmail-message-body");
 
     const sender = this.extractAddress(this.findFirst(gmailSelectors.sender));
     if (!sender?.address) extractionWarnings.push("Sender address was not visible in the Gmail UI.");
+
     const subjectElement = this.findFirst(gmailSelectors.subject);
     const subject = this.cleanText(subjectElement?.textContent) || null;
     if (!subject) extractionWarnings.push("Subject was not visible in the Gmail UI.");
+
     const bodyText = this.cleanText(bodyElement.textContent) ?? "";
     if (!bodyText) extractionWarnings.push("The visible message body was empty or unavailable.");
 
@@ -52,7 +60,9 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
     const recipients = this.extractRecipients(sender);
     const visibleWarnings = this.extractVisibleWarnings();
 
-    if (bodyElement.innerHTML === "") extractionWarnings.push("Message HTML was unavailable; only limited text extraction is possible.");
+    if (bodyElement.innerHTML === "") {
+      extractionWarnings.push("Message HTML was unavailable; only limited text extraction is possible.");
+    }
 
     return {
       provider: "gmail",
@@ -72,7 +82,10 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
   public highlightFinding(finding: SecurityFindingTarget): void {
     const targetId = finding.targetElementId;
     if (!targetId) return;
-    const target = this.environment.document.querySelector<HTMLElement>(`[data-phishcheck-id="${this.escapeAttribute(targetId)}"]`);
+
+    const target = this.environment.document.querySelector<HTMLElement>(
+      `[data-phishcheck-id="${this.escapeAttribute(targetId)}"]`,
+    );
     if (!target) return;
 
     this.ensureHighlightStyle();
@@ -131,7 +144,7 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
         hostname = parsed.hostname || null;
         protocol = parsed.protocol.replace(":", "") || null;
       } catch {
-        // Preserve malformed URLs as raw evidence for later rules.
+        // Malformed URLs are preserved as raw evidence for later rules.
       }
 
       const id = `gmail-link-${index + 1}`;
@@ -154,7 +167,9 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
     const attachments: EmailAttachment[] = [];
     for (const selector of gmailSelectors.attachments) {
       this.environment.document.querySelectorAll(selector).forEach((element, index) => {
-        const filename = this.cleanText(element.getAttribute("download")) || this.cleanText(element.getAttribute("data-tooltip")) || this.cleanText(element.textContent);
+        const filename = this.cleanText(element.getAttribute("download")) ||
+          this.cleanText(element.getAttribute("data-tooltip")) ||
+          this.cleanText(element.textContent);
         if (!filename || seen.has(filename)) return;
         seen.add(filename);
         const extensionMatch = /\.([a-z0-9]{1,10})(?:\s|$)/i.exec(filename);
@@ -205,3 +220,4 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
     this.environment.document.head?.append(style);
   }
 }
+
