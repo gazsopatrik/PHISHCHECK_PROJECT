@@ -275,3 +275,12 @@ Validation after the compatibility fix:
 
 Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 29 tests.
 
+## Phase 10 â€” Spam and scam-content detection calibration
+
+- Added deterministic detection for adult-content sales lures, word obfuscation, and unverifiable rapid-result or authority claims.
+- Added a correlation finding when multiple manipulative spam tactics appear in the same message.
+- Changed confidence to represent the reliability of the visible-content analysis: full headers, sender authentication, URL reputation, and attachment contents are outside the local MVP, so a complete visible extraction is now medium confidence (75/100), not high confidence (100/100).
+- Added regression tests based on manipulative adult-content spam phrasing.
+
+Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 32 tests.
+
