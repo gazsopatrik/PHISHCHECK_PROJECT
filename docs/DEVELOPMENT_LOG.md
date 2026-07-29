@@ -284,3 +284,12 @@ Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 29 tests.
 
 Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 32 tests.
 
+## Phase 10 follow-up â€” Evidence-level highlighting
+
+- Added exact matched-text highlighting for content-rule evidence, including obfuscated words and unverifiable claims.
+- Preserved the existing link and attachment highlights.
+- Kept whole-message highlighting only as a fallback when a correlation has no precise text evidence.
+- Made highlight cleanup unwrap injected text spans and restore the original visible text.
+
+Validation: `pnpm build`, `pnpm lint`, and `pnpm test` passed with 33 tests.
+
