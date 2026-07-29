@@ -65,6 +65,30 @@ This file records the implementation work for PhishCheck. Entries are written in
 - `pnpm test` — passed: 2 test files, 4 tests.
 - Opera GX manual installation and live Gmail DOM validation — pending.
 
+## Phase 3 — Deterministic link and sender rule foundation
+
+### Completed
+
+- Added analysis models for contexts, rules, severities, categories, brands, and explainable findings.
+- Added reusable hostname normalization, registrable-domain, IP, punycode, domain-comparison, and Levenshtein utilities.
+- Added safe URL parsing with malformed-input handling.
+- Added detection for login paths, common URL shorteners, and suspicious redirect parameters.
+- Added link rules for destination mismatch, IP destinations, HTTP login pages, punycode, shorteners, and redirect parameters.
+- Added sender rules for punycode domains, brand impersonation, and company-style free-provider identities.
+- Kept all rules independent of Gmail selectors and DOM implementation details.
+- Added utility and rule tests, including malformed URLs and deceptive subdomain cases.
+
+### Validation
+
+- `pnpm build` — passed.
+- `pnpm lint` — passed.
+- `pnpm test` — passed: 5 test files, 13 tests.
+- Opera GX manual validation — pending.
+
+### Technical note
+
+The registrable-domain helper intentionally uses a small explicit multi-label suffix set in this phase. A maintained Public Suffix List strategy is required before global production use.
+
 ### Next step
 
-Begin Phase 3: add the analysis context and deterministic link/sender utility foundation without coupling rules to Gmail selectors.
+Begin Phase 4: add the scoring engine, category caps, confidence calculation, and correlation rules around the existing findings.
