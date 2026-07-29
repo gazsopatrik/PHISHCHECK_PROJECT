@@ -2,10 +2,10 @@ import type { AnalysisContext, AnalysisResult, ConfidenceLevel, RiskLevel, Secur
 import type { EmailMessage } from "../models/email";
 import { applyCorrelationRules } from "./correlation";
 import { runAttachmentRules } from "./rules/attachment-rules";
-import { runConsistencyRules } from "./rules/consistency-rules";
 import { runContentRules } from "./rules/content-rules";
-import { runLinkRules } from "./rules/link-rules";
+import { runConsistencyRules } from "./rules/consistency-rules";
 import { runMissingInformationRules } from "./rules/missing-information-rules";
+import { runLinkRules } from "./rules/link-rules";
 import { runSenderRules } from "./rules/sender-rules";
 import { calculateConfidence } from "./scoring/confidence";
 import { normalizeRiskScore } from "./scoring/score";
@@ -19,7 +19,7 @@ function riskLevel(score: number): RiskLevel {
 }
 
 function confidenceLevel(score: number): ConfidenceLevel {
-  return score >= 75 ? "high" : score >= 50 ? "medium" : "low";
+  return score >= 80 ? "high" : score >= 50 ? "medium" : "low";
 }
 
 function summary(score: number, level: RiskLevel, findingCount: number): string {
@@ -58,3 +58,4 @@ export function analyzeMessage(message: EmailMessage, context: AnalysisContext):
     limitations,
   };
 }
+
