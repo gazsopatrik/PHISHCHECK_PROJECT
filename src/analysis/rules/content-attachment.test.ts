@@ -40,6 +40,30 @@ describe("content and attachment rules", () => {
     expect(findings).toHaveLength(0);
   });
 
+  it("detects manipulative adult-content spam lures", () => {
+    const findings = runContentRules({
+      ...baseMessage,
+      bodyText: "A hypnotic sex technique helped thousands of men last longer in as little as 21 days.",
+    }, context);
+
+    expect(findings.map((finding) => finding.ruleId)).toEqual(expect.arrayContaining([
+      "CONTENT_ADULT_SCAM_LURE",
+      "CONTENT_UNVERIFIABLE_PROMISE",
+    ]));
+  });
+
+  it("detects obfuscated adult spam wording", () => {
+    const findings = runContentRules({
+      ...baseMessage,
+      bodyText: "Learn how to correctly pleasure a woman's vag1na.",
+    }, context);
+
+    expect(findings.map((finding) => finding.ruleId)).toEqual(expect.arrayContaining([
+      "CONTENT_ADULT_SCAM_LURE",
+      "CONTENT_OBFUSCATED_WORDING",
+    ]));
+  });
+
   it("does not turn ordinary urgency into a high score by itself", () => {
     const findings = runContentRules({ ...baseMessage, bodyText: "Please review this urgent project update." }, context);
     expect(findings).toHaveLength(1);
