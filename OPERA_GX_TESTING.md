@@ -7,7 +7,7 @@ This checklist is the required manual validation for the Opera GX-first MVP. It 
 - [ ] Current supported Opera GX desktop build is installed.
 - [ ] A test Gmail account is available.
 - [ ] The test account contains no sensitive production email content.
-- [ ] The extension was built with `pnpm build`.
+- [ ] The extension was built with `npm run build`.
 
 ## Installation and permissions
 
