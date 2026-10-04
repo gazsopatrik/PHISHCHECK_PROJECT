@@ -16,6 +16,9 @@ describe("URL utilities", () => {
   it("compares visible and actual domains by registrable domain", () => {
     expect(visibleTextSuggestsDifferentDomain("https://paypal.com", "paypal-security.example")).toBe(true);
     expect(visibleTextSuggestsDifferentDomain("https://login.example.com", "cdn.example.com")).toBe(false);
+    expect(visibleTextSuggestsDifferentDomain("www.example.com", "login.example.com")).toBe(false);
+    expect(visibleTextSuggestsDifferentDomain("example.com", "login.example.com")).toBe(false);
+    expect(visibleTextSuggestsDifferentDomain("www.paypal.com", "phishing.example")).toBe(true);
     expect(visibleTextSuggestsDifferentDomain("WATCH VIDEO", "tracking.example.com")).toBe(false);
   });
 });

@@ -54,8 +54,9 @@ export function hasSuspiciousRedirectParameter(rawUrl: string): boolean {
 export function visibleTextSuggestsDifferentDomain(displayText: string, destinationHostname: string | null): boolean {
   if (!destinationHostname) return false;
   const visibleUrlPattern = /^(?:https?:\/\/|www\.)[^\s]+|^(?:[a-z0-9-]+\.)+[a-z]{2,}(?:[/:?#]|$)/i;
-  if (!visibleUrlPattern.test(displayText.trim())) return false;
-  const displayUrl = parseUrl(displayText);
+  const visibleText = displayText.trim();
+  if (!visibleUrlPattern.test(visibleText)) return false;
+  const displayUrl = parseUrl(/^https?:\/\//i.test(visibleText) ? visibleText : `https://${visibleText}`);
   if (!displayUrl.hostname) return false;
   return !domainsMatchOrRelated(displayUrl.hostname, destinationHostname);
 }
