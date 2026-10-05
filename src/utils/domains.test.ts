@@ -4,6 +4,8 @@ import { domainsMatchOrRelated, getRegistrableDomain, isIpAddress, isPunycodeHos
 describe("domain utilities", () => {
   it("normalizes hostnames and removes a trailing dot", () => {
     expect(normalizeHostname("  Mail.Example.COM. ")).toBe("mail.example.com");
+    expect(normalizeHostname("2001:db8::1")).toBe("2001:db8::1");
+    expect(normalizeHostname("[2001:db8::1]")).toBe("2001:db8::1");
   });
   it("extracts registrable domains without trusting deceptive subdomains", () => {
     expect(getRegistrableDomain("paypal.com.example.org")).toBe("example.org");
@@ -12,6 +14,8 @@ describe("domain utilities", () => {
   });
   it("detects IP and punycode domains", () => {
     expect(isIpAddress("192.168.1.1")).toBe(true);
+    expect(isIpAddress("2001:db8::1")).toBe(true);
+    expect(isIpAddress("[2001:db8::1]")).toBe(true);
     expect(isIpAddress("256.1.1.1")).toBe(false);
     expect(isPunycodeHostname("xn--pple-43d.example")).toBe(true);
   });

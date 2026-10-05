@@ -4,7 +4,8 @@ export function normalizeHostname(hostname: string): string | null {
   const normalized = hostname.trim().toLowerCase().replace(/^\.+|\.+$/g, "");
   if (!normalized || normalized.includes(" ")) return null;
   try {
-    return new URL(`https://${normalized}`).hostname.replace(/\.$/, "").toLowerCase();
+    const urlHostname = normalized.includes(":") && !normalized.startsWith("[") ? `[${normalized}]` : normalized;
+    return new URL(`https://${urlHostname}`).hostname.replace(/^\[|\]$/g, "").replace(/\.$/, "").toLowerCase();
   } catch {
     return null;
   }
