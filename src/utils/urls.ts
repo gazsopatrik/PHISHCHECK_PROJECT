@@ -42,9 +42,9 @@ export function isLoginLikeUrl(url: ParsedUrl): boolean {
   return /(?:login|signin|sign-in|verify|auth|account|password|credential|reset)/i.test(url.path ?? "");
 }
 
-export function hasSuspiciousRedirectParameter(rawUrl: string): boolean {
+export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https://mail.google.com"): boolean {
   try {
-    const url = new URL(rawUrl);
+    const url = new URL(rawUrl, baseUrl);
     return [...url.searchParams.keys()].some((key) => REDIRECT_PARAMETERS.test(key));
   } catch {
     return false;

@@ -11,6 +11,9 @@ describe("URL utilities", () => {
     expect(isLoginLikeUrl(parseUrl("https://example.com/account/verify"))).toBe(true);
     expect(isCommonShortener("bit.ly")).toBe(true);
     expect(hasSuspiciousRedirectParameter("https://example.com/?redirect=https%3A%2F%2Fevil.example")).toBe(true);
+    expect(hasSuspiciousRedirectParameter("/route?next=https%3A%2F%2Fevil.example")).toBe(true);
+    expect(hasSuspiciousRedirectParameter("/route?message=next")).toBe(false);
+    expect(hasSuspiciousRedirectParameter("not a URL")).toBe(false);
   });
 
   it("compares visible and actual domains by registrable domain", () => {
