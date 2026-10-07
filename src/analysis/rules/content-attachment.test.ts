@@ -87,5 +87,19 @@ describe("content and attachment rules", () => {
       "ATTACHMENT_ARCHIVE",
     ]);
   });
+
+  it("does not flag ordinary multi-dot filenames as dangerous double extensions", () => {
+    const findings = runAttachmentRules({
+      ...baseMessage,
+      attachments: [
+        { id: "a1", filename: "archive.tar.gz", extension: "gz", displayedSize: null },
+        { id: "a2", filename: "quarterly.report.pdf", extension: "pdf", displayedSize: null },
+        { id: "a3", filename: "release.1.0.zip", extension: "zip", displayedSize: null },
+      ],
+    }, context);
+
+    expect(findings.map((finding) => finding.ruleId)).toEqual(["ATTACHMENT_ARCHIVE"]);
+  });
+
 });
 
