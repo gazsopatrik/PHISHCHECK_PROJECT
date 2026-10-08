@@ -44,8 +44,19 @@ export function isLoginLikeUrl(url: ParsedUrl): boolean {
 
 export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https://mail.google.com"): boolean {
   try {
-    const url = new URL(rawUrl, baseUrl);
-    return [...url.searchParams.keys()].some((key) => REDIRECT_PARAMETERS.test(key));
+    const base = new URL(baseUrl);
+    const url = new URL(rawUrl, base);
+    return [...url.searchParams.entries()].some(([key, rawValue]) => {
+      if (!REDIRECT_PARAMETERS.test(key)) return false;
+      const value = rawValue.trim();
+      if (!/^(?:https?:)?\/\//i.test(value)) return false;
+      try {
+        const destination = new URL(value, base);
+        return /^https?:$/.test(destination.protocol) && destination.origin !== base.origin;
+      } catch {
+        return false;
+      }
+    });
   } catch {
     return false;
   }
