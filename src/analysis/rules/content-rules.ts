@@ -32,7 +32,7 @@ const contentPatterns: readonly ContentPattern[] = [
   },
   {
     id: "CONTENT_FINANCIAL_REQUEST",
-    pattern: /\b(send money|wire|transfer|pay(?!\\s+(?:(?:close|careful)\\s+)?attention\\b)|purchase|buy).{0,100}\b(payment|invoice|bank account|billing|refund|money|gift card|account)\b|\b(payment|invoice|bank account|billing|refund|money).{0,100}\b(send money|wire|transfer|pay(?!\\s+(?:(?:close|careful)\\s+)?attention\\b)|purchase|buy)\b/i,
+    pattern: /\b(send money|wire|transfer|pay(?!\s+(?:(?:close|careful)\s+)?attention\b)|purchase|buy).{0,100}\b(payment|invoice|bank account|billing|refund|money|gift card|account)\b|\b(payment|invoice|bank account|billing|refund|money).{0,100}\b(send money|wire|transfer|pay(?!\s+(?:(?:close|careful)\s+)?attention\b)|purchase|buy)\b/i,
     severity: "high",
     scoreContribution: 12,
     title: "The message contains a financial request",
