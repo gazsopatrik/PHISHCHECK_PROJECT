@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { analyzeMessage } from "./engine";
+import { calculateConfidence } from "./scoring/confidence";
 import { commonBrands } from "../rules/brands";
 import type { EmailMessage } from "../models/email";
 
@@ -18,6 +19,15 @@ const message: EmailMessage = {
 };
 
 describe("analysis engine", () => {
+  it("uses the same confidence level boundary as the analysis result", () => {
+    const confidence = calculateConfidence(message);
+    const result = analyzeMessage(message, { brands: commonBrands });
+
+    expect(confidence.score).toBe(75);
+    expect(confidence.level).toBe("medium");
+    expect(result.confidenceLevel).toBe(confidence.level);
+  });
+
   it("returns explainable score, risk, confidence, and correlation findings", () => {
     const result = analyzeMessage(message, { brands: commonBrands });
     expect(result.riskScore).toBe(44);
