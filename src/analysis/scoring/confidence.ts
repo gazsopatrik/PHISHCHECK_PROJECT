@@ -37,7 +37,7 @@ export function calculateConfidence(message: EmailMessage): ConfidenceResult {
   const normalizedScore = Math.max(0, Math.min(100, score));
   return {
     score: normalizedScore,
-    level: normalizedScore >= 75 ? "high" : normalizedScore >= 50 ? "medium" : "low",
+    level: normalizedScore >= 80 ? "high" : normalizedScore >= 50 ? "medium" : "low",
     limitations: [...new Set(limitations)],
   };
 }
