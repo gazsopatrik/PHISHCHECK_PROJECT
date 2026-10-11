@@ -28,6 +28,39 @@ describe("analysis engine", () => {
     expect(result.confidenceLevel).toBe(confidence.level);
   });
 
+  it("does not treat an inline thank-you as an email signature", () => {
+    const result = analyzeMessage({
+      ...message,
+      sender: { displayName: "Bob Example", address: "bob@example.test" },
+      bodyText: "Thank you, Alice, for reviewing the attached document.",
+      links: [],
+    }, { brands: commonBrands });
+
+    expect(result.findings.some((finding) => finding.ruleId === "CONSISTENCY_SIGNATURE_MISMATCH")).toBe(false);
+  });
+
+  it("detects a mismatched signature at the end of a message", () => {
+    const result = analyzeMessage({
+      ...message,
+      sender: { displayName: "Bob Example", address: "bob@example.test" },
+      bodyText: "Please review the document.\n\nBest,\nAlice Smith",
+      links: [],
+    }, { brands: commonBrands });
+
+    expect(result.findings.some((finding) => finding.ruleId === "CONSISTENCY_SIGNATURE_MISMATCH")).toBe(true);
+  });
+
+  it("deduplicates repeated extraction warnings", () => {
+    const warning = "Sender metadata was unavailable.";
+    const result = analyzeMessage({
+      ...message,
+      extractionWarnings: [warning, warning],
+    }, { brands: commonBrands });
+
+    expect(result.findings.filter((finding) => finding.ruleId.startsWith("EXTRACTION_WARNING"))).toHaveLength(1);
+    expect(result.limitations.filter((limitation) => limitation === warning)).toHaveLength(1);
+  });
+
   it("returns explainable score, risk, confidence, and correlation findings", () => {
     const result = analyzeMessage(message, { brands: commonBrands });
     expect(result.riskScore).toBe(44);
