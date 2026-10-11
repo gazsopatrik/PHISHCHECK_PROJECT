@@ -19,7 +19,7 @@ export const missingInformationRules: readonly AnalysisRule[] = [
   {
     id: "EXTRACTION_WARNING",
     category: "missing-information",
-    analyze: (message) => message.extractionWarnings.map((warning, index) => missingFinding(`EXTRACTION_WARNING:${index + 1}`, "Email extraction was incomplete", warning, { warning })),
+    analyze: (message) => [...new Set(message.extractionWarnings)].map((warning, index) => missingFinding(`EXTRACTION_WARNING:${index + 1}`, "Email extraction was incomplete", warning, { warning })),
   },
 ];
 
