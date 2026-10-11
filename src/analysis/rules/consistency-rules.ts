@@ -7,7 +7,7 @@ function finding(ruleId: string, severity: SecurityFinding["severity"], scoreCon
 }
 
 function signatureName(bodyText: string): string | null {
-  const match = /(?:regards|sincerely|best|thank you),?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i.exec(bodyText);
+  const match = /(?:^|\n)\s*(?:regards|sincerely|best|thank you),?[ \t]*(?:\n[ \t]*)?([A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+)?)[ \t]*$/i.exec(bodyText);
   return match?.[1] ?? null;
 }
 
