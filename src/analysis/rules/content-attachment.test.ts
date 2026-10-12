@@ -88,6 +88,23 @@ describe("content and attachment rules", () => {
     ]);
   });
 
+  it("uses the visible filename when extension metadata disagrees", () => {
+    const findings = runAttachmentRules({
+      ...baseMessage,
+      attachments: [
+        { id: "a1", filename: "malware.exe", extension: "pdf", displayedSize: null },
+        { id: "a2", filename: "report.pdf", extension: "exe", displayedSize: null },
+      ],
+    }, context);
+
+    expect(findings).toHaveLength(1);
+    expect(findings[0]).toMatchObject({
+      ruleId: "ATTACHMENT_EXECUTABLE",
+      targetElementId: "a1",
+      evidence: { filename: "malware.exe", extension: "exe" },
+    });
+  });
+
   it("does not flag ordinary multi-dot filenames as dangerous double extensions", () => {
     const findings = runAttachmentRules({
       ...baseMessage,
