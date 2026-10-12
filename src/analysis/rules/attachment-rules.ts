@@ -6,7 +6,8 @@ const MACRO_EXTENSIONS = new Set(["docm", "xlsm", "pptm"]);
 const ARCHIVE_EXTENSIONS = new Set(["zip", "rar", "7z"]);
 
 function extensionOf(attachment: EmailAttachment): string | null {
-  return attachment.extension?.toLowerCase() ?? /\.([a-z0-9]{1,10})$/i.exec(attachment.filename)?.[1]?.toLowerCase() ?? null;
+  const filenameExtension = /\.([a-z0-9]{1,10})$/i.exec(attachment.filename)?.[1]?.toLowerCase();
+  return filenameExtension ?? attachment.extension?.toLowerCase() ?? null;
 }
 
 function hasSuspiciousDoubleExtension(attachment: EmailAttachment): boolean {
