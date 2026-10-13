@@ -64,6 +64,20 @@ describe("content and attachment rules", () => {
     ]));
   });
 
+  it("does not mistake pay-attention wording for a payment request", () => {
+    const ordinary = runContentRules({
+      ...baseMessage,
+      bodyText: "Please pay close attention to the invoice details.",
+    }, context);
+    const payment = runContentRules({
+      ...baseMessage,
+      bodyText: "Please pay the invoice today.",
+    }, context);
+
+    expect(ordinary.some((finding) => finding.ruleId === "CONTENT_FINANCIAL_REQUEST")).toBe(false);
+    expect(payment.some((finding) => finding.ruleId === "CONTENT_FINANCIAL_REQUEST")).toBe(true);
+  });
+
   it("does not turn ordinary urgency into a high score by itself", () => {
     const findings = runContentRules({ ...baseMessage, bodyText: "Please review this urgent project update." }, context);
     expect(findings).toHaveLength(1);
