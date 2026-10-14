@@ -44,7 +44,7 @@ export const senderRules: readonly AnalysisRule[] = [
       const address = sender?.address;
       const hostname = address?.split("@")[1]?.toLowerCase() ?? null;
       const display = sender?.displayName?.toLowerCase() ?? "";
-      const authorityTerm = /support|security|billing|admin|bank|payroll|verification/.test(display);
+      const authorityTerm = /\b(?:support|security|billing|admin|bank|payroll|verification)\b/.test(display);
       return hostname && FREE_EMAIL_PROVIDERS.has(hostname) && authorityTerm ? [senderFinding("SENDER_FREE_PROVIDER_COMPANY_IDENTITY", "medium", 8, "Company-style sender uses a free email provider", "The sender presents an authority or support identity from a free mailbox provider.", "Confirm the sender address through an existing trusted contact or official website.", { hostname, displayName: sender?.displayName })] : [];
     },
   },
