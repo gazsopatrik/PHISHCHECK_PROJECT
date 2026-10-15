@@ -8,6 +8,22 @@ function senderFinding(ruleId: string, severity: SecurityFinding["severity"], sc
   return { id: ruleId, ruleId, category: "sender", severity, scoreContribution, confidence: 0.9, title, explanation, recommendation, evidence };
 }
 
+function mentionsBrandKeyword(display: string, keyword: string): boolean {
+  const term = keyword.toLowerCase();
+  if (!term) return false;
+  let offset = 0;
+  while (true) {
+    const index = display.indexOf(term, offset);
+    if (index < 0) return false;
+    const before = display[index - 1];
+    const after = display[index + term.length];
+    if ((!before || !/[a-z0-9]/i.test(before)) && (!after || !/[a-z0-9]/i.test(after))) {
+      return true;
+    }
+    offset = index + 1;
+  }
+}
+
 export const senderRules: readonly AnalysisRule[] = [
   {
     id: "SENDER_PUNYCODE_DOMAIN",
@@ -27,7 +43,7 @@ export const senderRules: readonly AnalysisRule[] = [
       const hostname = address?.split("@")[1] ?? null;
       if (!sender || !hostname) return [];
       const display = sender.displayName?.toLowerCase() ?? "";
-      const brand = context.brands.find((candidate) => candidate.keywords.some((keyword) => display.includes(keyword)));
+      const brand = context.brands.find((candidate) => candidate.keywords.some((keyword) => mentionsBrandKeyword(display, keyword)));
       if (!brand) return [];
       const normalized = normalizeHostname(hostname);
       const legitimate = brand.domains.some((domain) => normalized === domain || normalized?.endsWith(`.${domain}`));
