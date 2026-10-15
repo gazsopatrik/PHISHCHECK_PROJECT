@@ -19,6 +19,28 @@ const baseMessage: EmailMessage = {
 };
 
 describe("sender rules", () => {
+  it("matches whole brand names without flagging unrelated words", () => {
+    const brands: AnalysisContext = {
+      brands: [{ name: "Apple", domains: ["apple.com"], keywords: ["apple"] }],
+    };
+    const unrelated = runSenderRules({
+      ...baseMessage,
+      sender: { displayName: "Pineapple Farm", address: "team@example.org" },
+    }, brands);
+    const impersonator = runSenderRules({
+      ...baseMessage,
+      sender: { displayName: "Apple Support", address: "team@example.org" },
+    }, brands);
+    const legitimate = runSenderRules({
+      ...baseMessage,
+      sender: { displayName: "Apple Support", address: "team@apple.com" },
+    }, brands);
+
+    expect(unrelated.some((finding) => finding.ruleId === "SENDER_BRAND_IMPERSONATION")).toBe(false);
+    expect(impersonator.some((finding) => finding.ruleId === "SENDER_BRAND_IMPERSONATION")).toBe(true);
+    expect(legitimate.some((finding) => finding.ruleId === "SENDER_BRAND_IMPERSONATION")).toBe(false);
+  });
+
   it("does not flag authority terms embedded in ordinary words", () => {
     for (const displayName of ["Bankruptcy Clinic", "Administrative Assistant"]) {
       const findings = runSenderRules({
