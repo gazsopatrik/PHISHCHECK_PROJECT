@@ -4,7 +4,7 @@ Opera GX-first, privacy-preserving browser extension for analyzing phishing indi
 
 PhishCheck is a defensive security tool. It performs deterministic analysis locally in the browser and explains why an email may be suspicious. It helps users slow down and verify sensitive requests; it does not guarantee that an email is legitimate.
 
-> **Work in progress â€” experimental MVP.** PhishCheck is under active development and its detections, scores, confidence values, and Gmail highlighting are still being calibrated. Do not rely on it as the sole basis for a security, financial, or account-access decision. Always verify sensitive requests through an independent trusted channel.
+> **Work in progress — experimental MVP.** PhishCheck is under active development and its detections, scores, confidence values, and Gmail highlighting are still being calibrated. Do not rely on it as the sole basis for a security, financial, or account-access decision. Always verify sensitive requests through an independent trusted channel.
 
 ## Project status
 
@@ -24,12 +24,12 @@ The primary target is Opera GX for desktop. The implementation uses standard Man
 - Detect whether a Gmail message is currently open.
 - Extract visible sender, recipient, subject, body, links, attachments, and Gmail warnings.
 - Analyze sender identity, destinations, brand impersonation, social-engineering language, attachments, and content consistency.
-- Produce a transparent 0â€“100 risk score and a separate confidence level.
+- Produce a transparent 0–100 risk score and a separate confidence level.
 - Show evidence and recommended next actions for every finding.
 - Highlight suspicious content inside Gmail without changing the email.
 - Process email content locally without opening links or downloading attachments.
 
-PhishCheck will never claim that an email is â€ś100% safeâ€ť.
+PhishCheck will never claim that an email is “100% safe”.
 
 ## Target platform
 
@@ -53,17 +53,17 @@ Opera-specific proprietary APIs are not required. Browser integration is isolate
 
 ```text
 src/
-â”śâ”€â”€ background/       Extension service worker and message routing
-â”śâ”€â”€ content/          Gmail content script and highlighting
-â”śâ”€â”€ popup/            User interface
-â”śâ”€â”€ providers/gmail/  Gmail DOM extraction adapter
-â”śâ”€â”€ analysis/         Deterministic security rules and scoring
-â”śâ”€â”€ models/           Shared TypeScript data models
-â”śâ”€â”€ rules/            Rule definitions and brand data
-â”śâ”€â”€ storage/          Privacy-preserving local settings
-â”śâ”€â”€ ui/               Reusable UI components and accessibility
-â”śâ”€â”€ utils/            URL, domain, encoding, and security utilities
-â””â”€â”€ tests/            Unit, integration, and Gmail fixture tests
+├── background/       Extension service worker and message routing
+├── content/          Gmail content script and highlighting
+├── popup/            User interface
+├── providers/gmail/  Gmail DOM extraction adapter
+├── analysis/         Deterministic security rules and scoring
+├── models/           Shared TypeScript data models
+├── rules/            Rule definitions and brand data
+├── storage/          Privacy-preserving local settings
+├── ui/               Reusable UI components and accessibility
+├── utils/            URL, domain, encoding, and security utilities
+└── tests/            Unit, integration, and Gmail fixture tests
 ```
 
 Provider-specific DOM logic must not be mixed with analysis rules. Email content is treated as hostile input throughout the application.
