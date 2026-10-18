@@ -22,6 +22,14 @@ describe("URL utilities", () => {
     expect(hasSuspiciousRedirectParameter("not a URL")).toBe(false);
   });
 
+  it("matches login-like path segments, not unrelated substrings", () => {
+    expect(isLoginLikeUrl(parseUrl("http://example.com/accounting/report"))).toBe(false);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/author/profile"))).toBe(false);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/login.php"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/authentication"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/reset-password"))).toBe(true);
+  });
+
   it("compares visible and actual domains by registrable domain", () => {
     expect(visibleTextSuggestsDifferentDomain("https://paypal.com", "paypal-security.example")).toBe(true);
     expect(visibleTextSuggestsDifferentDomain("https://login.example.com", "cdn.example.com")).toBe(false);
