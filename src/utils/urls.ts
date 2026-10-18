@@ -39,7 +39,7 @@ export function isCommonShortener(hostname: string | null): boolean {
 }
 
 export function isLoginLikeUrl(url: ParsedUrl): boolean {
-  return /(?:login|signin|sign-in|verify|auth|account|password|credential|reset)/i.test(url.path ?? "");
+  return /(?:^|[/-])(?:login|signin|sign-in|verify|auth|authentication|account|password|credential|reset)(?=$|[./-])/i.test(url.path ?? "");
 }
 
 export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https://mail.google.com"): boolean {
