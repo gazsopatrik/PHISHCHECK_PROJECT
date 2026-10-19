@@ -6,6 +6,9 @@ describe("domain utilities", () => {
     expect(normalizeHostname("  Mail.Example.COM. ")).toBe("mail.example.com");
     expect(normalizeHostname("2001:db8::1")).toBe("2001:db8::1");
     expect(normalizeHostname("[2001:db8::1]")).toBe("2001:db8::1");
+    expect(normalizeHostname("alice@paypal.com")).toBeNull();
+    expect(normalizeHostname("paypal.com/login")).toBeNull();
+    expect(normalizeHostname("paypal.com?next=evil.test")).toBeNull();
   });
   it("extracts registrable domains without trusting deceptive subdomains", () => {
     expect(getRegistrableDomain("paypal.com.example.org")).toBe("example.org");
