@@ -2,7 +2,8 @@ const MULTI_LABEL_PUBLIC_SUFFIXES = new Set(["co.uk", "org.uk", "gov.uk", "com.a
 
 export function normalizeHostname(hostname: string): string | null {
   const normalized = hostname.trim().toLowerCase().replace(/^\.+|\.+$/g, "");
-  if (!normalized || normalized.includes(" ")) return null;
+  // A hostname must not contain URL userinfo, a path, query, or fragment.
+  if (!normalized || /[\s/@?#\\]/.test(normalized)) return null;
   try {
     const urlHostname = normalized.includes(":") && !normalized.startsWith("[") ? `[${normalized}]` : normalized;
     return new URL(`https://${urlHostname}`).hostname.replace(/^\[|\]$/g, "").replace(/\.$/, "").toLowerCase();
