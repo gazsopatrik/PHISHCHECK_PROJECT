@@ -9,7 +9,10 @@ export interface CategoryScore {
 
 export function calculateCategoryScores(findings: readonly SecurityFinding[]): CategoryScore[] {
   return (Object.keys(categoryCaps) as FindingCategory[]).map((category) => {
-    const rawScore = findings.filter((finding) => finding.category === category).reduce((total, finding) => total + Math.max(0, finding.scoreContribution), 0);
+    const rawScore = findings.filter((finding) => finding.category === category).reduce((total, finding) => {
+      const contribution = Number.isFinite(finding.scoreContribution) ? finding.scoreContribution : 0;
+      return total + Math.max(0, contribution);
+    }, 0);
     return { category, rawScore, cappedScore: Math.min(categoryCaps[category], rawScore) };
   });
 }
