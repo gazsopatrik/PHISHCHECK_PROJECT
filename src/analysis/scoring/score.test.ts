@@ -12,4 +12,15 @@ describe("risk scoring", () => {
     expect(calculateCategoryScores(findings).find((score) => score.category === "links")).toMatchObject({ rawScore: 60, cappedScore: 40 });
     expect(normalizeRiskScore(findings)).toBe(70);
   });
+
+  it("ignores invalid and negative score contributions", () => {
+    const findings = [
+      finding("links", Number.NaN, "nan"),
+      finding("links", Number.POSITIVE_INFINITY, "infinity"),
+      finding("links", -10, "negative"),
+      finding("links", 12, "valid"),
+    ];
+    expect(calculateCategoryScores(findings).find((score) => score.category === "links")).toMatchObject({ rawScore: 12, cappedScore: 12 });
+    expect(normalizeRiskScore(findings)).toBe(12);
+  });
 });
