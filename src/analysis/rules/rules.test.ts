@@ -35,6 +35,20 @@ describe("initial deterministic rules", () => {
     expect(findings.map((finding) => finding.ruleId)).toEqual(["LINK_TEXT_DESTINATION_MISMATCH", "LINK_SUSPICIOUS_REDIRECT_PARAMETER"]);
     expect(findings.every((finding) => finding.evidence)).toBe(true);
   });
+  it("flags executable link schemes without flagging normal web or email links", () => {
+    const links = [
+      { ...message.links[0]!, id: "unsafe-js", rawHref: "javascript:alert(1)", normalizedUrl: "javascript:alert(1)", hostname: null, protocol: "javascript" },
+      { ...message.links[0]!, id: "unsafe-data", rawHref: "data:text/html,test", normalizedUrl: "data:text/html,test", hostname: null, protocol: "data" },
+      { ...message.links[0]!, id: "safe-http", rawHref: "https://example.test", normalizedUrl: "https://example.test/", hostname: "example.test", protocol: "https" },
+      { ...message.links[0]!, id: "safe-mail", rawHref: "mailto:help@example.test", normalizedUrl: "mailto:help@example.test", hostname: null, protocol: "mailto" },
+    ];
+    const findings = runLinkRules({ ...message, links }, context);
+    const unsafeFindings = findings.filter((finding) => finding.ruleId === "LINK_UNSAFE_SCHEME");
+
+    expect(unsafeFindings).toHaveLength(2);
+    expect(unsafeFindings.map((finding) => finding.targetElementId)).toEqual(["unsafe-js", "unsafe-data"]);
+  });
+
   it("reports brand impersonation with traceable evidence", () => {
     const findings = runSenderRules(message, context);
     expect(findings).toHaveLength(1);
