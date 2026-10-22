@@ -8,6 +8,11 @@ function finding(link: ExtractedLink, ruleId: string, severity: SecurityFinding[
 
 export const linkRules: readonly AnalysisRule[] = [
   {
+    id: "LINK_UNSAFE_SCHEME",
+    category: "links",
+    analyze: (message) => message.links.filter((link) => ["javascript", "data", "file"].includes(link.protocol?.toLowerCase() ?? "")).map((link) => finding(link, "LINK_UNSAFE_SCHEME", "high", 20, "Link uses an unsafe URL scheme", "The link uses a URL scheme that can execute embedded content or access local resources instead of opening a normal website.", "Do not activate the link. Delete or report the message unless the sender and purpose are independently verified.", { protocol: link.protocol, rawHref: link.rawHref })),
+  },
+  {
     id: "LINK_TEXT_DESTINATION_MISMATCH",
     category: "links",
     analyze: (message) => message.links.filter((link) => visibleTextSuggestsDifferentDomain(link.displayText, link.hostname)).map((link) => finding(link, "LINK_TEXT_DESTINATION_MISMATCH", "high", 20, "Link text does not match its destination", "The visible link text suggests a different domain than the actual destination.", "Do not open the link. Visit the official website manually.", { displayText: link.displayText, actualHostname: link.hostname })),
