@@ -29,9 +29,10 @@ export function calculateConfidence(message: EmailMessage): ConfidenceResult {
     score -= 5;
     limitations.push("Only plain text was available; some visual indicators may be missing.");
   }
-  if (message.extractionWarnings.length > 0) {
-    score -= Math.min(30, message.extractionWarnings.length * 10);
-    limitations.push(...message.extractionWarnings);
+  const uniqueExtractionWarnings = [...new Set(message.extractionWarnings)];
+  if (uniqueExtractionWarnings.length > 0) {
+    score -= Math.min(30, uniqueExtractionWarnings.length * 10);
+    limitations.push(...uniqueExtractionWarnings);
   }
 
   const normalizedScore = Math.max(0, Math.min(100, score));
@@ -41,4 +42,3 @@ export function calculateConfidence(message: EmailMessage): ConfidenceResult {
     limitations: [...new Set(limitations)],
   };
 }
-
