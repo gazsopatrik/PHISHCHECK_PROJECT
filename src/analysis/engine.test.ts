@@ -52,11 +52,18 @@ describe("analysis engine", () => {
 
   it("deduplicates repeated extraction warnings", () => {
     const warning = "Sender metadata was unavailable.";
-    const result = analyzeMessage({
+    const singleWarningConfidence = calculateConfidence({
+      ...message,
+      extractionWarnings: [warning],
+    });
+    const repeatedWarningMessage = {
       ...message,
       extractionWarnings: [warning, warning],
-    }, { brands: commonBrands });
+    };
+    const repeatedWarningConfidence = calculateConfidence(repeatedWarningMessage);
+    const result = analyzeMessage(repeatedWarningMessage, { brands: commonBrands });
 
+    expect(repeatedWarningConfidence.score).toBe(singleWarningConfidence.score);
     expect(result.findings.filter((finding) => finding.ruleId.startsWith("EXTRACTION_WARNING"))).toHaveLength(1);
     expect(result.limitations.filter((limitation) => limitation === warning)).toHaveLength(1);
   });
@@ -120,4 +127,3 @@ describe("analysis engine", () => {
     expect(result.confidenceLevel).toBe("medium");
   });
 });
-
