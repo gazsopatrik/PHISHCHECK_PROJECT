@@ -22,12 +22,15 @@ describe("URL utilities", () => {
     expect(hasSuspiciousRedirectParameter("not a URL")).toBe(false);
   });
 
-  it("matches login-like path segments, not unrelated substrings", () => {
+  it("matches login-like path and fragment segments, not unrelated substrings", () => {
     expect(isLoginLikeUrl(parseUrl("http://example.com/accounting/report"))).toBe(false);
     expect(isLoginLikeUrl(parseUrl("http://example.com/author/profile"))).toBe(false);
     expect(isLoginLikeUrl(parseUrl("http://example.com/login.php"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/authentication"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/reset-password"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/login"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/account/reset"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/author/profile"))).toBe(false);
   });
 
   it("compares visible and actual domains by registrable domain", () => {
@@ -39,4 +42,3 @@ describe("URL utilities", () => {
     expect(visibleTextSuggestsDifferentDomain("WATCH VIDEO", "tracking.example.com")).toBe(false);
   });
 });
-
