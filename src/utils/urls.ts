@@ -9,13 +9,14 @@ export interface ParsedUrl {
   hostname: string | null;
   protocol: string | null;
   path: string | null;
+  fragment: string | null;
   isIp: boolean;
   isPunycode: boolean;
 }
 
 export function parseUrl(rawUrl: string, baseUrl = "https://mail.google.com"): ParsedUrl {
   if (/\s/.test(rawUrl)) {
-    return { raw: rawUrl, normalized: null, hostname: null, protocol: null, path: null, isIp: false, isPunycode: false };
+    return { raw: rawUrl, normalized: null, hostname: null, protocol: null, path: null, fragment: null, isIp: false, isPunycode: false };
   }
   try {
     const url = new URL(rawUrl, baseUrl);
@@ -25,11 +26,12 @@ export function parseUrl(rawUrl: string, baseUrl = "https://mail.google.com"): P
       hostname: url.hostname || null,
       protocol: url.protocol.replace(":", "") || null,
       path: url.pathname || null,
+      fragment: url.hash ? url.hash.slice(1) : null,
       isIp: isIpAddress(url.hostname),
       isPunycode: isPunycodeHostname(url.hostname),
     };
   } catch {
-    return { raw: rawUrl, normalized: null, hostname: null, protocol: null, path: null, isIp: false, isPunycode: false };
+    return { raw: rawUrl, normalized: null, hostname: null, protocol: null, path: null, fragment: null, isIp: false, isPunycode: false };
   }
 }
 
@@ -39,7 +41,8 @@ export function isCommonShortener(hostname: string | null): boolean {
 }
 
 export function isLoginLikeUrl(url: ParsedUrl): boolean {
-  return /(?:^|[/-])(?:login|signin|sign-in|verify|auth|authentication|account|password|credential|reset)(?=$|[./-])/i.test(url.path ?? "");
+  const route = [url.path, url.fragment].filter(Boolean).join("/");
+  return /(?:^|[/-])(?:login|signin|sign-in|verify|auth|authentication|account|password|credential|reset)(?=$|[./-])/i.test(route);
 }
 
 export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https://mail.google.com"): boolean {
@@ -71,4 +74,3 @@ export function visibleTextSuggestsDifferentDomain(displayText: string, destinat
   if (!displayUrl.hostname) return false;
   return !domainsMatchOrRelated(displayUrl.hostname, destinationHostname);
 }
-
