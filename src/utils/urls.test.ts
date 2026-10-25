@@ -39,6 +39,8 @@ describe("URL utilities", () => {
     expect(visibleTextSuggestsDifferentDomain("www.example.com", "login.example.com")).toBe(false);
     expect(visibleTextSuggestsDifferentDomain("example.com", "login.example.com")).toBe(false);
     expect(visibleTextSuggestsDifferentDomain("www.paypal.com", "phishing.example")).toBe(true);
+    expect(visibleTextSuggestsDifferentDomain("paypal.xn--p1ai", "phishing.example")).toBe(true);
+    expect(visibleTextSuggestsDifferentDomain("paypal.xn--p1ai", "login.paypal.xn--p1ai")).toBe(false);
     expect(visibleTextSuggestsDifferentDomain("WATCH VIDEO", "tracking.example.com")).toBe(false);
   });
 });
