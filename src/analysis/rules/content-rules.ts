@@ -86,7 +86,11 @@ const contentPatterns: readonly ContentPattern[] = [
   },
 ];
 
-function createFinding(pattern: ContentPattern, evidence: Record<string, unknown>): SecurityFinding {
+function createFinding(
+  pattern: ContentPattern,
+  evidence: Record<string, unknown>,
+  targetElementId?: string,
+): SecurityFinding {
   return {
     id: pattern.id,
     ruleId: pattern.id,
@@ -97,7 +101,7 @@ function createFinding(pattern: ContentPattern, evidence: Record<string, unknown
     title: pattern.title,
     explanation: pattern.explanation,
     evidence,
-    targetElementId: "gmail-message-body",
+    targetElementId,
     recommendation: pattern.recommendation,
   };
 }
@@ -106,12 +110,18 @@ export const contentRules: readonly AnalysisRule[] = contentPatterns.map((patter
   id: pattern.id,
   category: "content",
   analyze: (message: EmailMessage) => {
-    const match = pattern.pattern.exec(message.bodyText);
-    return match ? [createFinding(pattern, { matchedText: match[0] })] : [];
+    const bodyMatch = pattern.pattern.exec(message.bodyText);
+    if (bodyMatch) {
+      return [createFinding(pattern, { matchedText: bodyMatch[0], source: "body" }, "gmail-message-body")];
+    }
+
+    const subjectMatch = pattern.pattern.exec(message.subject ?? "");
+    return subjectMatch
+      ? [createFinding(pattern, { matchedText: subjectMatch[0], source: "subject" })]
+      : [];
   },
 }));
 
 export function runContentRules(message: EmailMessage, _context: AnalysisContext): SecurityFinding[] {
   return contentRules.flatMap((rule) => rule.analyze(message, _context));
 }
-
