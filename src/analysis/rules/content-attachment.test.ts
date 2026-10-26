@@ -132,5 +132,21 @@ describe("content and attachment rules", () => {
     expect(findings.map((finding) => finding.ruleId)).toEqual(["ATTACHMENT_ARCHIVE"]);
   });
 
+
+  it("analyzes social-engineering indicators in the subject", () => {
+    const findings = runContentRules({
+      ...baseMessage,
+      subject: "Urgent: verify your password",
+      bodyText: "Hello, please read this message.",
+    }, context);
+
+    expect(findings.map((finding) => finding.ruleId)).toEqual([
+      "CONTENT_URGENCY",
+      "CONTENT_CREDENTIAL_REQUEST",
+    ]);
+    expect(findings.every((finding) => finding.evidence.source === "subject")).toBe(true);
+    expect(findings.every((finding) => finding.targetElementId === undefined)).toBe(true);
+  });
+
 });
 
