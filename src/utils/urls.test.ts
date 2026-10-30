@@ -29,6 +29,8 @@ describe("URL utilities", () => {
     expect(isLoginLikeUrl(parseUrl("http://example.com/authentication"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/reset-password"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/login"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/login?next=/inbox"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/accounting?next=/login"))).toBe(false);
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/account/reset"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/author/profile"))).toBe(false);
   });
