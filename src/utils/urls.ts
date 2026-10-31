@@ -49,7 +49,11 @@ export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https:
   try {
     const base = new URL(baseUrl);
     const url = new URL(rawUrl, base);
-    return [...url.searchParams.entries()].some(([key, rawValue]) => {
+    const fragmentQuery = url.hash.includes("?")
+      ? new URLSearchParams(url.hash.slice(url.hash.indexOf("?") + 1))
+      : null;
+    const params = [url.searchParams, fragmentQuery].filter((item): item is URLSearchParams => item !== null);
+    return params.some((searchParams) => [...searchParams.entries()].some(([key, rawValue]) => {
       if (!REDIRECT_PARAMETERS.test(key)) return false;
       const value = rawValue.trim();
       if (!/^(?:https?:)?\/\//i.test(value)) return false;
@@ -59,7 +63,7 @@ export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https:
       } catch {
         return false;
       }
-    });
+    }));
   } catch {
     return false;
   }
