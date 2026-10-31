@@ -19,6 +19,11 @@ describe("URL utilities", () => {
     expect(hasSuspiciousRedirectParameter("https://example.com/route?next=https%3A%2F%2Fexample.com%2Finbox")).toBe(false);
     expect(hasSuspiciousRedirectParameter("https://example.com/route?next=https%3A%2F%2Fevil.example%2Flogin")).toBe(true);
     expect(hasSuspiciousRedirectParameter("/route?next=%2F%2Fevil.example%2Flogin")).toBe(true);
+    expect(hasSuspiciousRedirectParameter("https://example.com/#/login?next=https%3A%2F%2Fevil.example")).toBe(true);
+    expect(hasSuspiciousRedirectParameter("https://example.com/#/login?next=%2F%2Fevil.example")).toBe(true);
+    expect(hasSuspiciousRedirectParameter("https://example.com/#/login?next=https%3A%2F%2Fexample.com%2Finbox")).toBe(false);
+    expect(hasSuspiciousRedirectParameter("https://example.com/#/login?next=/inbox")).toBe(false);
+    expect(hasSuspiciousRedirectParameter("https://example.com/#/login?message=https%3A%2F%2Fevil.example")).toBe(false);
     expect(hasSuspiciousRedirectParameter("not a URL")).toBe(false);
   });
 
