@@ -192,17 +192,17 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
   }
 
   private extractAttachments(): EmailAttachment[] {
-    const seen = new Set<string>();
+    const seen = new Set<Element>();
     const attachments: EmailAttachment[] = [];
     for (const selector of gmailSelectors.attachments) {
-      this.environment.document.querySelectorAll(selector).forEach((element, index) => {
+      this.environment.document.querySelectorAll(selector).forEach((element) => {
         const filename = this.cleanText(element.getAttribute("download")) ||
           this.cleanText(element.getAttribute("data-tooltip")) ||
           this.cleanText(element.textContent);
-        if (!filename || seen.has(filename)) return;
-        seen.add(filename);
+        if (!filename || seen.has(element)) return;
+        seen.add(element);
         const extensionMatch = /\.([a-z0-9]{1,10})(?:\s|$)/i.exec(filename);
-        const id = `gmail-attachment-${attachments.length + index + 1}`;
+        const id = `gmail-attachment-${attachments.length + 1}`;
         element.setAttribute("data-phishcheck-id", id);
         attachments.push({
           id,
