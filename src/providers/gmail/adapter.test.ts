@@ -118,6 +118,16 @@ describe("GmailProviderAdapter", () => {
     expect(message.attachments.every((attachment) => attachment.id.startsWith("gmail-attachment-"))).toBe(true);
   });
 
+  it("preserves distinct attachments with the same filename and deduplicates selector overlap", async () => {
+    const html = `<div role="main"><div class="a3s aiL">Message body</div>
+      <a class="aZo" download="report.pdf">report.pdf</a>
+      <a download="report.pdf">report.pdf</a></div>`;
+    const message = await createAdapter(html).extractCurrentEmail();
+
+    expect(message.attachments.map((attachment) => attachment.filename)).toEqual(["report.pdf", "report.pdf"]);
+    expect(message.attachments.map((attachment) => attachment.id)).toEqual(["gmail-attachment-1", "gmail-attachment-2"]);
+  });
+
   it("uses semantic Gmail fallbacks when legacy body classes are absent", async () => {
     const message = await createAdapter(semanticBodyFixture).extractCurrentEmail();
     expect(message.bodyText).toContain("semantic direction attribute");
