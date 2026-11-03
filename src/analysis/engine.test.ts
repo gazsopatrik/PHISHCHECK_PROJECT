@@ -68,6 +68,20 @@ describe("analysis engine", () => {
     expect(result.limitations.filter((limitation) => limitation === warning)).toHaveLength(1);
   });
 
+  it("does not highlight the body for subject-only spam correlations", () => {
+    const result = analyzeMessage({
+      ...message,
+      sender: { displayName: "Unknown", address: "offers@example.test" },
+      subject: "A hypnotic sex technique helped thousands",
+      bodyText: "Hello, please read this message.",
+      links: [],
+    }, { brands: commonBrands });
+    const correlation = result.findings.find((finding) => finding.ruleId === "CORRELATION_MANIPULATIVE_SPAM_CONTENT");
+
+    expect(correlation).toBeDefined();
+    expect(correlation?.targetElementId).toBeUndefined();
+  });
+
   it("returns explainable score, risk, confidence, and correlation findings", () => {
     const result = analyzeMessage(message, { brands: commonBrands });
     expect(result.riskScore).toBe(44);
