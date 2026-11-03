@@ -22,7 +22,9 @@ export function applyCorrelationRules(message: EmailMessage, findings: readonly 
       explanation: "The message combines adult-content bait, disguised wording, or unverifiable claims. Together these are strong signs of deceptive bulk marketing.",
       evidence: { ruleIds: manipulativeContentFindings.map((finding) => finding.ruleId) },
       recommendation: "Do not use the message links. Delete or report the email as spam unless the sender and offer can be independently verified.",
-      targetElementId: "gmail-message-body",
+      targetElementId: manipulativeContentFindings.some((finding) => finding.evidence.source === "body")
+        ? "gmail-message-body"
+        : undefined,
     });
   }
 
