@@ -7,8 +7,9 @@ function finding(ruleId: string, severity: SecurityFinding["severity"], scoreCon
 }
 
 function signatureName(bodyText: string): string | null {
-  const match = /(?:^|\n)\s*(?:regards|sincerely|best|thank you),?[ \t]*(?:\n[ \t]*)?([A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+)?)[ \t]*$/i.exec(bodyText);
-  return match?.[1] ?? null;
+  const match = /(?:^|[.!?\n][ \t]*)\s*(?:regards|sincerely|best|thank you),?[ \t]*(?:\n[ \t]*)?([A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+)?)[ \t]*$/i.exec(bodyText);
+  const name = match?.[1];
+  return name && /^[A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+)?$/.test(name) ? name : null;
 }
 
 export const consistencyRules: readonly AnalysisRule[] = [
