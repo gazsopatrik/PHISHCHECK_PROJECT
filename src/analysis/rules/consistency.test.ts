@@ -24,6 +24,12 @@ describe("consistency and missing-information rules", () => {
     const findings = runConsistencyRules(baseMessage, context);
     expect(findings.map((finding) => finding.ruleId)).toEqual(["CONSISTENCY_SIGNATURE_MISMATCH", "CONSISTENCY_UNRELATED_DOMAINS"]);
   });
+  it("does not treat a lowercase closing phrase as a personal signature", () => {
+    const message = { ...baseMessage, bodyText: "Thank you, payment" };
+    const findings = runConsistencyRules(message, context);
+    expect(findings.some((finding) => finding.ruleId === "CONSISTENCY_SIGNATURE_MISMATCH")).toBe(false);
+  });
+
   it("reports missing sender, body, and extraction warnings", () => {
     const findings = runMissingInformationRules({ ...baseMessage, sender: null, bodyText: "", extractionWarnings: ["Gmail body was partially hidden."] }, context);
     expect(findings.map((finding) => finding.ruleId)).toEqual(["MISSING_SENDER_ADDRESS", "MISSING_BODY_CONTENT", "EXTRACTION_WARNING:1"]);
