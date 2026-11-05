@@ -42,7 +42,7 @@ export function isCommonShortener(hostname: string | null): boolean {
 
 export function isLoginLikeUrl(url: ParsedUrl): boolean {
   const route = [url.path, url.fragment?.split("?")[0]].filter(Boolean).join("/");
-  return /(?:^|[/-])(?:login|signin|sign-in|verify|auth|authentication|account|password|credential|reset)(?=$|[./-])/i.test(route);
+  return /(?:^|[/-])(?:login|log-in|log_in|signin|sign-in|sign_in|verify|auth|authentication|account|password|credential|reset)(?=$|[./-])/i.test(route);
 }
 
 export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https://mail.google.com"): boolean {
