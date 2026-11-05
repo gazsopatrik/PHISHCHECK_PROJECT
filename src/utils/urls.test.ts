@@ -33,6 +33,10 @@ describe("URL utilities", () => {
     expect(isLoginLikeUrl(parseUrl("http://example.com/login.php"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/authentication"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/reset-password"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/log-in"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/sign_in"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/log-inventory"))).toBe(false);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/sign_internet"))).toBe(false);
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/login"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/login?next=/inbox"))).toBe(true);
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/accounting?next=/login"))).toBe(false);
