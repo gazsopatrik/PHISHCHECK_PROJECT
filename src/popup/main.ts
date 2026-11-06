@@ -3,6 +3,7 @@ import { analyzeMessage } from "../analysis/engine";
 import { commonBrands } from "../rules/brands";
 import type { AnalysisResult, SecurityFinding } from "../models/analysis";
 import type { PhishCheckResponse } from "../shared/messages";
+import { matchesAnalyzedTab, type AnalyzedTab } from "./tab-context";
 
 const app = document.querySelector<HTMLElement>("#app");
 
@@ -46,7 +47,7 @@ async function analyzeCurrentEmail(button: HTMLButtonElement): Promise<void> {
     }
     const response = await sendContentMessage(tabId, "PHISHCHECK_EXTRACT_EMAIL");
     if (!response?.ok || !response.email) throw new Error(response?.error ?? "PhishCheck could not extract this email.");
-    renderResult(analyzeMessage(response.email, { brands: commonBrands }));
+    renderResult(analyzeMessage(response.email, { brands: commonBrands }), { id: tabId, url: tabs[0]?.url });
   } catch (error: unknown) {
     renderStart(toUserFacingError(error));
   }
@@ -61,7 +62,7 @@ function toUserFacingError(error: unknown): string {
   return "PhishCheck could not analyze this page.";
 }
 
-function renderResult(result: AnalysisResult): void {
+function renderResult(result: AnalysisResult, analyzedTab: AnalyzedTab): void {
   if (!app) return;
   const section = document.createElement("section");
   section.className = "panel result";
@@ -77,12 +78,12 @@ function renderResult(result: AnalysisResult): void {
   const highlightButton = document.createElement("button");
   highlightButton.type = "button";
   highlightButton.textContent = "Highlight Suspicious Content";
-  highlightButton.addEventListener("click", () => void highlightFindings(result));
+  highlightButton.addEventListener("click", () => void highlightFindings(result, analyzedTab));
   const clearButton = document.createElement("button");
   clearButton.type = "button";
   clearButton.className = "secondary-button";
   clearButton.textContent = "Remove Highlights";
-  clearButton.addEventListener("click", () => void clearHighlights());
+  clearButton.addEventListener("click", () => void clearHighlights(analyzedTab));
   highlightControls.append(highlightButton, clearButton);
   const rerun = document.createElement("button");
   rerun.type = "button";
@@ -160,27 +161,22 @@ function injectContentScript(tabId: number): Promise<void> {
   });
 }
 
-async function activeTabId(): Promise<number> {
-  const tabs = await queryActiveTabs();
-  const tabId = tabs[0]?.id;
-  if (tabId === undefined) throw new Error("No active browser tab was found.");
-  return tabId;
-}
-
-async function highlightFindings(result: AnalysisResult): Promise<void> {
+async function highlightFindings(result: AnalysisResult, analyzedTab: AnalyzedTab): Promise<void> {
   try {
-    const tabId = await activeTabId();
-    await sendContentMessage(tabId, "PHISHCHECK_PING");
-    await Promise.all(result.findings.filter((finding) => finding.targetElementId).map((finding) => sendTabMessage(tabId, { type: "PHISHCHECK_HIGHLIGHT", finding })));
+    const currentTab = (await queryActiveTabs())[0];
+    if (!matchesAnalyzedTab(analyzedTab, currentTab)) return;
+    await sendContentMessage(analyzedTab.id, "PHISHCHECK_PING");
+    await Promise.all(result.findings.filter((finding) => finding.targetElementId).map((finding) => sendTabMessage(analyzedTab.id, { type: "PHISHCHECK_HIGHLIGHT", finding })));
   } catch {
     // The result remains usable when the Gmail page is no longer available.
   }
 }
 
-async function clearHighlights(): Promise<void> {
+async function clearHighlights(analyzedTab: AnalyzedTab): Promise<void> {
   try {
-    const tabId = await activeTabId();
-    await sendTabMessage(tabId, "PHISHCHECK_CLEAR_HIGHLIGHTS");
+    const currentTab = (await queryActiveTabs())[0];
+    if (!matchesAnalyzedTab(analyzedTab, currentTab)) return;
+    await sendTabMessage(analyzedTab.id, "PHISHCHECK_CLEAR_HIGHLIGHTS");
   } catch {
     // The page may have navigated away or the content script may have been reloaded.
   }
