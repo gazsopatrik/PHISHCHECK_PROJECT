@@ -90,7 +90,8 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
     const evidence = finding.evidence ?? {};
     const matchedText = typeof evidence.matchedText === "string" ? evidence.matchedText : null;
     this.ensureHighlightStyle();
-    if (targetId === "gmail-message-body" && target && matchedText && this.highlightText(target, matchedText)) {
+    if (targetId === "gmail-message-body" && target && matchedText) {
+      this.highlightText(target, matchedText);
       return;
     }
     if (target) {
