@@ -98,6 +98,20 @@ describe("GmailProviderAdapter", () => {
     expect(window.document.body.textContent).toContain("Immediate action required");
   });
 
+  it("does not highlight the whole message when evidence text is absent", async () => {
+    const window = new Window();
+    window.document.body.innerHTML = fixture;
+    const adapter = new GmailProviderAdapter({
+      document: window.document as unknown as Document,
+      location: { hostname: "mail.google.com", href: "https://mail.google.com/mail/u/0/#inbox/message" },
+    });
+    await adapter.extractCurrentEmail();
+
+    adapter.highlightFinding({ targetElementId: "gmail-message-body", evidence: { matchedText: "Text not present in this email" } });
+    expect(window.document.querySelector("[data-phishcheck-id='gmail-message-body']")?.classList.contains("phishcheck-highlight")).toBe(false);
+    expect(window.document.querySelector("[data-phishcheck-text-highlight]")).toBeNull();
+  });
+
   it("extracts a legitimate marketing message without inventing warnings", async () => {
     const message = await createAdapter(legitimateMarketingFixture).extractCurrentEmail();
     expect(message.sender?.address).toBe("updates@trusted.example");
