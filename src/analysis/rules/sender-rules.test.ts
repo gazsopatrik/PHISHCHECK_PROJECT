@@ -41,6 +41,15 @@ describe("sender rules", () => {
     expect(legitimate.some((finding) => finding.ruleId === "SENDER_BRAND_IMPERSONATION")).toBe(false);
   });
 
+  it("reads the domain after a quoted @ in the sender local part", () => {
+    const findings = runSenderRules({
+      ...baseMessage,
+      sender: { displayName: "Bank Support", address: '"team@billing"@gmail.com' },
+    }, context);
+
+    expect(findings.some((finding) => finding.ruleId === "SENDER_FREE_PROVIDER_COMPANY_IDENTITY")).toBe(true);
+  });
+
   it("does not flag authority terms embedded in ordinary words", () => {
     for (const displayName of ["Bankruptcy Clinic", "Administrative Assistant"]) {
       const findings = runSenderRules({

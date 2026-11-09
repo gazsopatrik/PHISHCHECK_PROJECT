@@ -24,13 +24,19 @@ function mentionsBrandKeyword(display: string, keyword: string): boolean {
   }
 }
 
+function senderHostname(address: string | null | undefined): string | null {
+  if (!address) return null;
+  const separator = address.lastIndexOf("@");
+  return separator > 0 && separator < address.length - 1 ? address.slice(separator + 1) : null;
+}
+
 export const senderRules: readonly AnalysisRule[] = [
   {
     id: "SENDER_PUNYCODE_DOMAIN",
     category: "sender",
     analyze: (message) => {
       const address = message.sender?.address;
-      const hostname = address?.split("@")[1] ?? null;
+      const hostname = senderHostname(address);
       return hostname && isPunycodeHostname(hostname) ? [senderFinding("SENDER_PUNYCODE_DOMAIN", "high", 15, "Sender uses an encoded domain", "The sender domain contains punycode, which can be used to make lookalike domains harder to recognize.", "Verify the sender through an independent trusted channel.", { hostname })] : [];
     },
   },
@@ -40,7 +46,7 @@ export const senderRules: readonly AnalysisRule[] = [
     analyze: (message, context) => {
       const sender = message.sender;
       const address = sender?.address;
-      const hostname = address?.split("@")[1] ?? null;
+      const hostname = senderHostname(address);
       if (!sender || !hostname) return [];
       const display = sender.displayName?.toLowerCase() ?? "";
       const brand = context.brands.find((candidate) => candidate.keywords.some((keyword) => mentionsBrandKeyword(display, keyword)));
@@ -58,7 +64,7 @@ export const senderRules: readonly AnalysisRule[] = [
     analyze: (message) => {
       const sender = message.sender;
       const address = sender?.address;
-      const hostname = address?.split("@")[1]?.toLowerCase() ?? null;
+      const hostname = senderHostname(address)?.toLowerCase() ?? null;
       const display = sender?.displayName?.toLowerCase() ?? "";
       const authorityTerm = /\b(?:support|security|billing|admin|bank|payroll|verification)\b/.test(display);
       return hostname && FREE_EMAIL_PROVIDERS.has(hostname) && authorityTerm ? [senderFinding("SENDER_FREE_PROVIDER_COMPANY_IDENTITY", "medium", 8, "Company-style sender uses a free email provider", "The sender presents an authority or support identity from a free mailbox provider.", "Confirm the sender address through an existing trusted contact or official website.", { hostname, displayName: sender?.displayName })] : [];
