@@ -125,6 +125,7 @@ describe("analysis engine", () => {
 
     expect(result.riskScore).toBe(0);
     expect(result.findings.some((finding) => finding.category === "missing-information")).toBe(true);
+    expect(result.summary).toBe("No major phishing indicators were detected, but legitimacy is not guaranteed.");
   });
 
   it("flags manipulative adult-content spam even without a classic phishing keyword", () => {

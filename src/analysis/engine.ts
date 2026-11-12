@@ -22,8 +22,8 @@ function confidenceLevel(score: number): ConfidenceLevel {
   return score >= 80 ? "high" : score >= 50 ? "medium" : "low";
 }
 
-function summary(score: number, level: RiskLevel, findingCount: number): string {
-  if (findingCount === 0) return "No major phishing indicators were detected, but legitimacy is not guaranteed.";
+function summary(score: number, level: RiskLevel): string {
+  if (score === 0) return "No major phishing indicators were detected, but legitimacy is not guaranteed.";
   const labels: Record<RiskLevel, string> = {
     low: "Low detected risk",
     caution: "Some caution indicators were detected",
@@ -52,7 +52,7 @@ export function analyzeMessage(message: EmailMessage, context: AnalysisContext):
     riskLevel: riskLevel(riskScore),
     confidenceScore: confidence.score,
     confidenceLevel: confidenceLevel(confidence.score),
-    summary: summary(riskScore, riskLevel(riskScore), findings.length),
+    summary: summary(riskScore, riskLevel(riskScore)),
     findings,
     analyzedAt: new Date().toISOString(),
     limitations,
