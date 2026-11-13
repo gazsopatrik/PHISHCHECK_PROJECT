@@ -24,6 +24,24 @@ describe("consistency and missing-information rules", () => {
     const findings = runConsistencyRules(baseMessage, context);
     expect(findings.map((finding) => finding.ruleId)).toEqual(["CONSISTENCY_SIGNATURE_MISMATCH", "CONSISTENCY_UNRELATED_DOMAINS"]);
   });
+  it("compares link domains against the domain after a quoted @", () => {
+    const sender = { displayName: "Team", address: '"team@billing"@example.com' };
+    const related = runConsistencyRules({
+      ...baseMessage,
+      sender,
+      bodyText: "Please review this link.",
+      links: [{ ...baseMessage.links[0]!, hostname: "www.example.com" }],
+    }, context);
+    const unrelated = runConsistencyRules({
+      ...baseMessage,
+      sender,
+      bodyText: "Please review this link.",
+    }, context);
+
+    expect(related.some((finding) => finding.ruleId === "CONSISTENCY_UNRELATED_DOMAINS")).toBe(false);
+    expect(unrelated.some((finding) => finding.ruleId === "CONSISTENCY_UNRELATED_DOMAINS")).toBe(true);
+  });
+
   it("does not treat a lowercase closing phrase as a personal signature", () => {
     const message = { ...baseMessage, bodyText: "Thank you, payment" };
     const findings = runConsistencyRules(message, context);

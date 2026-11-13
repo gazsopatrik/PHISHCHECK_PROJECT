@@ -30,7 +30,10 @@ export const consistencyRules: readonly AnalysisRule[] = [
     id: "CONSISTENCY_UNRELATED_DOMAINS",
     category: "consistency",
     analyze: (message) => {
-      const senderDomain = message.sender?.address?.split("@")[1] ?? null;
+      const address = message.sender?.address;
+      const separator = address?.lastIndexOf("@") ?? -1;
+      const senderDomain = address && separator > 0 && separator < address.length - 1
+        ? address.slice(separator + 1) : null;
       if (!senderDomain) return [];
       const unrelatedLinks = message.links.filter((link) => link.hostname && !domainsMatchOrRelated(senderDomain, link.hostname));
       if (unrelatedLinks.length === 0) return [];
