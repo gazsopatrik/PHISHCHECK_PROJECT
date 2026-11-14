@@ -71,7 +71,7 @@ export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https:
 
 export function visibleTextSuggestsDifferentDomain(displayText: string, destinationHostname: string | null): boolean {
   if (!destinationHostname) return false;
-  const visibleUrlPattern = /^(?:https?:\/\/|www\.)[^\s]+|^(?:[a-z0-9-]+\.)+(?:[a-z]{2,}|xn--[a-z0-9-]{2,})(?:[/:?#]|$)/i;
+  const visibleUrlPattern = /^(?:https?:\/\/|www\.)[^\s]+|^(?:[a-z0-9-]+\.)+(?:[a-z]{2,}|xn--[a-z0-9-]{2,})(?:[/:?#]|\s|$)/i;
   const visibleText = displayText.trim();
   if (!visibleUrlPattern.test(visibleText)) return false;
   // A URL followed by a label still identifies the visible destination.
