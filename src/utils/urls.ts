@@ -74,7 +74,9 @@ export function visibleTextSuggestsDifferentDomain(displayText: string, destinat
   const visibleUrlPattern = /^(?:https?:\/\/|www\.)[^\s]+|^(?:[a-z0-9-]+\.)+(?:[a-z]{2,}|xn--[a-z0-9-]{2,})(?:[/:?#]|$)/i;
   const visibleText = displayText.trim();
   if (!visibleUrlPattern.test(visibleText)) return false;
-  const displayUrl = parseUrl(/^https?:\/\//i.test(visibleText) ? visibleText : `https://${visibleText}`);
+  // A URL followed by a label still identifies the visible destination.
+  const visibleUrl = visibleText.split(/\s/, 1)[0];
+  const displayUrl = parseUrl(/^https?:\/\//i.test(visibleUrl) ? visibleUrl : `https://${visibleUrl}`);
   if (!displayUrl.hostname) return false;
   return !domainsMatchOrRelated(displayUrl.hostname, destinationHostname);
 }
