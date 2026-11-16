@@ -112,6 +112,18 @@ describe("GmailProviderAdapter", () => {
     expect(window.document.querySelector("[data-phishcheck-text-highlight]")).toBeNull();
   });
 
+  it("ignores empty and fragment-only links instead of treating them as Gmail destinations", async () => {
+    const html = `<div role="main"><div class="a3s aiL">
+      <a href="">https://paypal.com</a>
+      <a href="#details">Details</a>
+      <a href="https://example.test/path">Valid link</a>
+    </div></div>`;
+    const message = await createAdapter(html).extractCurrentEmail();
+
+    expect(message.links).toHaveLength(1);
+    expect(message.links[0]).toMatchObject({ id: "gmail-link-1", hostname: "example.test" });
+  });
+
   it("extracts a legitimate marketing message without inventing warnings", async () => {
     const message = await createAdapter(legitimateMarketingFixture).extractCurrentEmail();
     expect(message.sender?.address).toBe("updates@trusted.example");

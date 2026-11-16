@@ -163,7 +163,12 @@ export class GmailProviderAdapter implements EmailProviderAdapter {
   }
 
   private extractLinks(bodyElement: Element): ExtractedLink[] {
-    return Array.from(bodyElement.querySelectorAll<HTMLAnchorElement>("a[href]"), (link, index) => {
+    return Array.from(bodyElement.querySelectorAll<HTMLAnchorElement>("a[href]"))
+      .filter((link) => {
+        const href = link.getAttribute("href")?.trim();
+        return Boolean(href && !href.startsWith("#"));
+      })
+      .map((link, index) => {
       const rawHref = link.getAttribute("href")?.trim() ?? "";
       let normalizedUrl: string | null = null;
       let hostname: string | null = null;
