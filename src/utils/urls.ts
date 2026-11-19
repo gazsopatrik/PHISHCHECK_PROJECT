@@ -75,7 +75,7 @@ export function visibleTextSuggestsDifferentDomain(displayText: string, destinat
   const visibleText = displayText.trim();
   if (!visibleUrlPattern.test(visibleText)) return false;
   // A URL followed by a label still identifies the visible destination.
-  const visibleUrl = visibleText.split(/\s/, 1)[0];
+  const visibleUrl = visibleText.split(/\s/, 1)[0].replace(/[),.!?;:]+$/, "");
   const displayUrl = parseUrl(/^https?:\/\//i.test(visibleUrl) ? visibleUrl : `https://${visibleUrl}`);
   if (!displayUrl.hostname) return false;
   return !domainsMatchOrRelated(displayUrl.hostname, destinationHostname);
