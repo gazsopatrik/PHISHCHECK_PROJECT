@@ -58,7 +58,7 @@ export function hasSuspiciousRedirectParameter(rawUrl: string, baseUrl = "https:
       const value = rawValue.trim();
       if (!/^(?:https?:)?\/\//i.test(value)) return false;
       try {
-        const destination = new URL(value, base);
+        const destination = new URL(value, url);
         return /^https?:$/.test(destination.protocol) && destination.origin !== url.origin;
       } catch {
         return false;
