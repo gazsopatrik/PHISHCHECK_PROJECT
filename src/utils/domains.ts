@@ -1,4 +1,4 @@
-const MULTI_LABEL_PUBLIC_SUFFIXES = new Set(["co.uk", "org.uk", "gov.uk", "com.au", "co.jp", "co.nz"]);
+const MULTI_LABEL_PUBLIC_SUFFIXES = new Set(["co.uk", "org.uk", "gov.uk", "com.au", "co.jp", "co.nz", "com.br", "com.tr"]);
 
 export function normalizeHostname(hostname: string): string | null {
   const normalized = hostname.trim().toLowerCase().replace(/^\.+|\.+$/g, "");

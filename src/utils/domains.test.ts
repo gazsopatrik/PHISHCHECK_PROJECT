@@ -13,6 +13,9 @@ describe("domain utilities", () => {
   it("extracts registrable domains without trusting deceptive subdomains", () => {
     expect(getRegistrableDomain("paypal.com.example.org")).toBe("example.org");
     expect(getRegistrableDomain("portal.example.co.uk")).toBe("example.co.uk");
+    expect(getRegistrableDomain("login.paypal.com.br")).toBe("paypal.com.br");
+    expect(domainsMatchOrRelated("login.paypal.com.br", "attacker.com.br")).toBe(false);
+    expect(domainsMatchOrRelated("login.example.com.tr", "other.com.tr")).toBe(false);
     expect(domainsMatchOrRelated("login.example.com", "cdn.example.com")).toBe(true);
   });
   it("detects IP and punycode domains", () => {
