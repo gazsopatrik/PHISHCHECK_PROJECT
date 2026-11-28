@@ -32,3 +32,17 @@ export interface AnalysisRule {
   category: FindingCategory;
   analyze(message: EmailMessage, context: AnalysisContext): SecurityFinding[];
 }
+
+export type RiskLevel = "low" | "caution" | "suspicious" | "high" | "critical";
+export type ConfidenceLevel = "low" | "medium" | "high";
+
+export interface AnalysisResult {
+  riskScore: number;
+  riskLevel: RiskLevel;
+  confidenceScore: number;
+  confidenceLevel: ConfidenceLevel;
+  summary: string;
+  findings: SecurityFinding[];
+  analyzedAt: string;
+  limitations: string[];
+}

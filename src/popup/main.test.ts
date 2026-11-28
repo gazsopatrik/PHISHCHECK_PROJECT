@@ -36,7 +36,7 @@ it("starts a new extraction directly from Analyze Again", async () => {
   document.querySelector<HTMLButtonElement>("button")!.click();
   await vi.waitFor(() => expect(extractions).toBe(1));
   await vi.waitFor(() => expect(document.body.textContent).toContain("Analyze Again"));
-  const rerun = [...document.querySelectorAll("button")].find((button) => button.textContent === "Analyze Again")!;
+  const rerun = Array.from(document.querySelectorAll("button")).find((button) => button.textContent === "Analyze Again")!;
   rerun.click();
   expect(rerun.disabled).toBe(true);
   await vi.waitFor(() => expect(extractions).toBe(2));
