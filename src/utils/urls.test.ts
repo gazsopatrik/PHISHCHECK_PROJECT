@@ -46,6 +46,15 @@ describe("URL utilities", () => {
     expect(isLoginLikeUrl(parseUrl("http://example.com/#/author/profile"))).toBe(false);
   });
 
+  it("recognizes percent-encoded login routes without throwing on malformed escapes", () => {
+    expect(isLoginLikeUrl(parseUrl("http://example.com/%6Cogin"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/%61ccount"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/%61ccounting"))).toBe(false);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/%ZZ"))).toBe(false);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/%ZZ#/login"))).toBe(true);
+    expect(isLoginLikeUrl(parseUrl("http://example.com/#/home?next=%2Flogin"))).toBe(false);
+  });
+
   it("compares visible and actual domains by registrable domain", () => {
     expect(visibleTextSuggestsDifferentDomain("https://paypal.com", "paypal-security.example")).toBe(true);
     expect(visibleTextSuggestsDifferentDomain("https://paypal.com Sign in", "paypal-security.example")).toBe(true);

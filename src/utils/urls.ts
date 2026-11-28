@@ -41,7 +41,14 @@ export function isCommonShortener(hostname: string | null): boolean {
 }
 
 export function isLoginLikeUrl(url: ParsedUrl): boolean {
-  const route = [url.path, url.fragment?.split("?")[0]].filter(Boolean).join("/");
+  const route = [url.path, url.fragment?.split("?")[0]].filter(Boolean).map((part) => {
+    try {
+      return decodeURIComponent(part!);
+    } catch {
+      // Malformed escapes must not interrupt analysis of the remaining URL.
+      return part;
+    }
+  }).join("/");
   return /(?:^|[/-])(?:login|log-in|log_in|signin|sign-in|sign_in|verify|auth|authentication|account|password|credential|reset)(?=$|[./-])/i.test(route);
 }
 
