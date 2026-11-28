@@ -88,7 +88,7 @@ function renderResult(result: AnalysisResult, analyzedTab: AnalyzedTab): void {
   const rerun = document.createElement("button");
   rerun.type = "button";
   rerun.textContent = "Analyze Again";
-  rerun.addEventListener("click", () => renderStart());
+  rerun.addEventListener("click", () => void analyzeCurrentEmail(rerun));
   section.append(heading, score, confidence, summary, findings, highlightControls, rerun);
   if (result.limitations.length > 0) {
     const limitations = document.createElement("p");
